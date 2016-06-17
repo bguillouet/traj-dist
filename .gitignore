@@ -1,0 +1,7 @@
+dist/
+distance.pyc
+.idea/
+build/
+.DS_Store
+deprecated/
+test/
