@@ -70,10 +70,10 @@ def sspd(traj_1, traj_2, type_d = "euclidean", implementation = "auto"):
     -----
     Compute the Symmetrized Segment-Path Distance between trajectory traj_1 and traj_2
 
-    type_d's parameters available are "euclidean" or "geographical".
+    type_d parameter options are "euclidean" or "geographical".
     - "euclidean" can handle every trajectory dimensions.
     - "geographical" implies a 2-dimensional trajectory where first dimensions is longitudes coordinate and second
-    dimension is latitute coordinate.
+    dimension is latitude coordinate.
 
     If the distance traj_0 and traj_1 are 2-dimensional, the cython implementation is used, otherwised the python one
     is used, unless "python" implementation is specified
@@ -82,8 +82,8 @@ def sspd(traj_1, traj_2, type_d = "euclidean", implementation = "auto"):
     Parameters
     ----------
 
-    param traj_1         : a 2-D numpry array
-    param traj_2         : a 2-D numpry array
+    param traj_1         : a 2-D numpy array
+    param traj_2         : a 2-D numpy array
     param type_d         : string, distance type_d used (geographical or euclidean)
     param implementation : string, implementation used (python, cython, auto)
 

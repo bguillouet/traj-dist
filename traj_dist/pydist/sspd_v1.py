@@ -1,13 +1,11 @@
 import numpy as np
-from basic_euclidean import eucl_dist, eucl_dist_traj, point_to_trajectory_2
+from basic_euclidean import point_to_trajectory
 from basic_geographical import point_to_path
-
-
 ###############
 ## euclidean ##
 ###############
 
-def e_spd(t1, t2, mdist, l_t1, l_t2, t2_dist):
+def e_spd (t1, t2):
     """
     Usage
     -----
@@ -24,17 +22,15 @@ def e_spd(t1, t2, mdist, l_t1, l_t2, t2_dist):
     spd : float
            spd-distance of trajectory t2 from trajectory t1
     """
-
-    spd = sum(map(lambda i1: point_to_trajectory_2(t1[i1], t2, mdist[i1], t2_dist, l_t2), range(l_t1))) / l_t1
+    spd=sum(map(lambda p : point_to_trajectory(p,t2),t1))/len(t1)
     return spd
 
-
-def e_sspd(t1, t2):
+def e_sspd (t1, t2):
     """
     Usage
     -----
     The sspd-distance between trajectories t1 and t2.
-    The sspd-distance isjthe mean of the spd-distance between of t1 from t2 and the spd-distance of t2 from t1.
+    The sspd-distance is the mean of the spd-distance between of t1 from t2 and the spd-distance of t2 from t1.
 
     Parameters
     ----------
@@ -46,15 +42,8 @@ def e_sspd(t1, t2):
     sspd : float
             sspd-distance of trajectory t2 from trajectory t1
     """
-    mdist = eucl_dist_traj(t1, t2)
-    l_t1 = len(t1)
-    l_t2 = len(t2)
-    t1_dist = map(lambda it1: eucl_dist(t1[it1], t1[it1 + 1]), range(l_t1 - 1))
-    t2_dist = map(lambda it2: eucl_dist(t2[it2], t2[it2 + 1]), range(l_t2 - 1))
-
-    sspd = (e_spd(t1, t2, mdist, l_t1, l_t2, t2_dist) + e_spd(t2, t1, mdist.T, l_t2, l_t1, t1_dist)) / 2
+    sspd=(e_spd(t1,t2) + e_spd(t2,t1))/2
     return sspd
-
 
 #################
 ## geographical##

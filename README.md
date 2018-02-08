@@ -23,15 +23,29 @@ It is implemented in both Python and Cython.
 
 trajectory_distance is tested to work under Python 2.7.
 
-The required dependencies to build the software are NumPy >= 1.9.1, Cython >= 0.21.2, shapely >= 1.5.6, Geohash and a working C/C++ compiler.
+The required dependencies to build the software are:
+ 
+* NumPy >= 1.9.1
+* Cython >= 0.21.2
+* shapely >= 1.5.6
+* Geohash
+* A working C/C++ compiler.
 
 ## Install
 
-This package uses distutils. To install in your home directory, use:
+This package uses distutils.
+
+Move to the package directory and run :
 
 ```
 python setup.py install 
 ```
+
+or 
+
+```
+pip install .
+``
 
 ## How to use it
 

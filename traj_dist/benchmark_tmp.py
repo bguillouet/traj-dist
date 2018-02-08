@@ -1,6 +1,10 @@
 import numpy as np
-import math
+import pandas as pd
+import timeit
 from scipy.spatial.distance import cdist
+
+data = pd.read_pickle("/Users/bguillouet/These/trajectory_review/data/extracted/starting_from/Caltrain_city_center_v3.pkl")
+
 
 
 def eucl_dist(x, y):
@@ -91,8 +95,47 @@ def point_to_trajectory(p, t):
     dpt = min(map(lambda s1, s2: point_to_seg(p, s1, s2), t[:-1], t[1:]))
     return dpt
 
+def e_spd (t1, t2):
+    """
+    Usage
+    -----
+    The spd-distance of trajectory t2 from trajectory t1
+    The spd-distance is the sum of the all the point-to-trajectory distance of points of t1 from trajectory t2
 
-def eucl_dist_traj(t1, t2):
+    Parameters
+    ----------
+    param t1 :  len(t1)x2 numpy_array
+    param t2 :  len(t2)x2 numpy_array
+
+    Returns
+    -------
+    spd : float
+           spd-distance of trajectory t2 from trajectory t1
+    """
+    spd=sum(map(lambda p : point_to_trajectory(p,t2),t1))/len(t1)
+    return spd
+
+def e_sspd (t1, t2):
+    """
+    Usage
+    -----
+    The sspd-distance between trajectories t1 and t2.
+    The sspd-distance is the mean of the spd-distance between of t1 from t2 and the spd-distance of t2 from t1.
+
+    Parameters
+    ----------
+    param t1 :  len(t1)x2 numpy_array
+    param t2 :  len(t2)x2 numpy_array
+
+    Returns
+    -------
+    sspd : float
+            sspd-distance of trajectory t2 from trajectory t1
+    """
+    sspd=(e_spd(t1,t2) + e_spd(t2,t1))/2
+    return sspd
+
+def eucl_dist_2(t1, t2):
     """
     Usage
     -----
@@ -146,7 +189,7 @@ def point_to_seg_2(p, s1, s2, dps1, dps2, ds):
 
         if (u < 0.00001) or (u > 1):
             # closest point does not fall within the line segment, take the shorter distance to an endpoint
-            dpl = min(dps1, dps2)
+            dpl = min(dps1,dps2)
         else:
             # Intersecting point is on the line, use the formula
             ix = p1x + u * x_diff
@@ -154,7 +197,6 @@ def point_to_seg_2(p, s1, s2, dps1, dps2, ds):
             dpl = eucl_dist(p, np.array([ix, iy]))
 
     return dpl
-
 
 def point_to_trajectory_2(p, t, mdist_p, t_dist, l_t):
     """
@@ -173,58 +215,81 @@ def point_to_trajectory_2(p, t, mdist_p, t_dist, l_t):
     dpt : float,
           Point-to-trajectory distance between p and trajectory t
     """
-    dpt = min(
-        map(lambda it: point_to_seg_2(p, t[it], t[it + 1], mdist_p[it], mdist_p[it + 1], t_dist[it]), range(l_t - 1)))
+    dpt = min(map(lambda it: point_to_seg_2(p, t[it], t[it+1], mdist_p[it], mdist_p[it+1], t_dist[it]), range(l_t-1)))
     return dpt
 
 
-def circle_line_intersection(px, py, s1x, s1y, s2x, s2y, eps):
+def e_spd_2(t1, t2, mdist, l_t1, l_t2, t2_dist):
     """
     Usage
     -----
-    Find the intersections between the circle of radius eps and center (px, py) and the line delimited by points
-    (s1x, s1y) and (s2x, s2y).
-    It is supposed here that the intersection between them exists. If no, raise error
+    The spd-distance of trajectory t2 from trajectory t1
+    The spd-distance is the sum of the all the point-to-trajectory distance of points of t1 from trajectory t2
 
     Parameters
     ----------
-    param px : float, centre's abscissa of the circle
-    param py : float, centre's ordinate of the circle
-    param eps : float, radius of the circle
-    param s1x : abscissa of the first point of the line
-    param s1y : ordinate of the first point of the line
-    param s2x : abscissa of the second point of the line
-    param s2y : ordinate of the second point of the line
+    param t1 :  len(t1)x2 numpy_array
+    param t2 :  len(t2)x2 numpy_array
 
     Returns
     -------
-    intersect : 2x2 numpy_array
-                Coordinate of the two intersections.
-                If the two intersections are the same, that's means that the line is a tangent of the circle.
+    spd : float
+           spd-distance of trajectory t2 from trajectory t1
     """
-    if s2x == s1x:
-        rac = math.sqrt((eps * eps) - ((s1x - px) * (s1x - px)))
-        y1 = py + rac
-        y2 = py - rac
-        intersect = np.array([[s1x, y1], [s1x, y2]])
-    else:
-        m = (s2y - s1y) / (s2x - s1x)
-        c = s2y - m * s2x
-        A = m * m + 1
-        B = 2 * (m * c - m * py - px)
-        C = py * py - eps * eps + px * px - 2 * c * py + c * c
-        delta = B * B - 4 * A * C
-        if delta <= 0:
-            x = -B / (2 * A)
-            y = m * x + c
-            intersect = np.array([[x, y], [x, y]])
-        elif delta > 0:
-            sdelta = math.sqrt(delta)
-            x1 = (-B + sdelta) / (2 * A)
-            y1 = m * x1 + c
-            x2 = (-B - sdelta) / (2 * A)
-            y2 = m * x2 + c
-            intersect = np.array([[x1, y1], [x2, y2]])
-        else:
-            raise ValueError("The intersection between circle and line is supposed to exist")
-    return intersect
+
+    spd=sum(map(lambda i1 : point_to_trajectory_2(t1[i1],t2, mdist[i1], t2_dist, l_t2),range(l_t1)))/l_t1
+    return spd
+
+
+def e_sspd_2 (t1, t2):
+    """
+    Usage
+    -----
+    The sspd-distance between trajectories t1 and t2.
+    The sspd-distance is the mean of the spd-distance between of t1 from t2 and the spd-distance of t2 from t1.
+
+    Parameters
+    ----------
+    param t1 :  len(t1)x2 numpy_array
+    param t2 :  len(t2)x2 numpy_array
+
+    Returns
+    -------
+    sspd : float
+            sspd-distance of trajectory t2 from trajectory t1
+    """
+    mdist = eucl_dist_2(t1, t2)
+    l_t1 = len(t1)
+    l_t2 = len(t2)
+    t1_dist = map(lambda it1 : eucl_dist(t1[it1], t1[it1+1]), range(l_t1-1))
+    t2_dist = map(lambda it2 : eucl_dist(t2[it2], t2[it2+1]), range(l_t2-1))
+
+    sspd=(e_spd_2(t1, t2, mdist, l_t1, l_t2, t2_dist) + e_spd_2(t2, t1, mdist.T, l_t2, l_t1, t1_dist))/2
+    return sspd
+
+
+traj_list = [group[["lons","lats"]].values for _,group in data.groupby("id_traj")][:100]
+nb_traj = len(traj_list)
+print(nb_traj)
+
+
+def plop(func):
+    im=0
+    M = np.zeros(sum(range(nb_traj)))
+    for i in range(nb_traj):
+        traj_list_i = traj_list[i]
+        for j in range(i + 1, nb_traj):
+            traj_list_j = traj_list[j]
+            M[im] = func(traj_list_i, traj_list_j)
+            im += 1
+
+print(timeit.timeit(lambda: plop(e_sspd), number=1))
+print(timeit.timeit(lambda: plop(e_sspd_2), number=1))
+
+traj_1 = data[data.id_traj==1][["lons","lats"]].values
+traj_2 = data[data.id_traj == 2][["lons", "lats"]].values
+
+
+print(timeit.timeit(lambda:e_sspd(traj_1, traj_2), number=100))
+print(timeit.timeit(lambda:e_sspd_2(traj_1, traj_2), number=100))
+
