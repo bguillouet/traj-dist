@@ -1,12 +1,17 @@
 import numpy as np
-from basic_euclidean import eucl_dist, eucl_dist_traj, point_to_trajectory_2
+from basic_euclidean import eucl_dist, point_to_trajectory_2
 from basic_geographical import point_to_path
+from numba import jit, float64, int64
+from numba.pycc import CC
+
+cc_sspd = CC('sspd')
 
 
 ###############
 ## euclidean ##
 ###############
 
+@jit(float64(float64[:, :], float64[:, :], float64[:, :], int64, int64, float64[:]))
 def e_spd(t1, t2, mdist, l_t1, l_t2, t2_dist):
     """
     Usage
@@ -25,10 +30,13 @@ def e_spd(t1, t2, mdist, l_t1, l_t2, t2_dist):
            spd-distance of trajectory t2 from trajectory t1
     """
 
-    spd = sum(map(lambda i1: point_to_trajectory_2(t1[i1], t2, mdist[i1], t2_dist, l_t2), range(l_t1))) / l_t1
+    all_spd = np.empty(l_t1)
+    for i1 in range(l_t1):
+        all_spd[i1] = point_to_trajectory_2(t1[i1], t2, mdist[i1], t2_dist, l_t2)
+    spd = np.sum(all_spd)/l_t1
     return spd
 
-
+@cc_sspd.export('e_sspd', 'float64(float64[:,:], float64[:,:])')
 def e_sspd(t1, t2):
     """
     Usage
@@ -46,11 +54,23 @@ def e_sspd(t1, t2):
     sspd : float
             sspd-distance of trajectory t2 from trajectory t1
     """
-    mdist = eucl_dist_traj(t1, t2)
     l_t1 = len(t1)
     l_t2 = len(t2)
-    t1_dist = map(lambda it1: eucl_dist(t1[it1], t1[it1 + 1]), range(l_t1 - 1))
-    t2_dist = map(lambda it2: eucl_dist(t2[it2], t2[it2 + 1]), range(l_t2 - 1))
+
+    mdist = np.empty((l_t1, l_t2))
+    for i in range(l_t1):
+        for j in range(l_t2):
+            dx = t1[i][0] - t2[j][0]
+            dy = t1[i][1] - t2[j][1]
+            d = dx * dx + dy * dy
+            mdist[i, j] = np.sqrt(d)
+
+    t1_dist = np.empty(l_t1 - 1)
+    for i in range(l_t1 - 1):
+        t1_dist[i] = eucl_dist(t1[i], t1[i + 1])
+    t2_dist = np.empty(l_t2 - 1)
+    for i in range(l_t2 - 1):
+        t2_dist[i] = eucl_dist(t2[i], t2[i + 1])
 
     sspd = (e_spd(t1, t2, mdist, l_t1, l_t2, t2_dist) + e_spd(t2, t1, mdist.T, l_t2, l_t1, t1_dist)) / 2
     return sspd

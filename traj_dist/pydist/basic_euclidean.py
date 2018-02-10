@@ -1,8 +1,10 @@
 import numpy as np
 import math
 from scipy.spatial.distance import cdist
+from numba import jit, float64, int64
 
 
+@jit(float64(float64[:], float64[:]))
 def eucl_dist(x, y):
     """
     Usage
@@ -19,7 +21,10 @@ def eucl_dist(x, y):
     dist : float
            L2-norm between x and y
     """
-    dist = np.linalg.norm(x - y)
+    d0 = x[0] - y[0]
+    d1 = x[1] - y[1]
+    d = d0 * d0 + d1 * d1
+    dist = np.sqrt(d)
     return dist
 
 
@@ -92,26 +97,7 @@ def point_to_trajectory(p, t):
     return dpt
 
 
-def eucl_dist_traj(t1, t2):
-    """
-    Usage
-    -----
-    L2-norm between point x and y
-
-    Parameters
-    ----------
-    param x : numpy_array
-    param y : numpy_array
-
-    Returns
-    -------
-    dist : float
-           L2-norm between x and y
-    """
-    mdist = cdist(t1, t2, 'euclidean')
-    return mdist
-
-
+@jit(float64(float64[:], float64[:], float64[:], float64, float64, float64))
 def point_to_seg_2(p, s1, s2, dps1, dps2, ds):
     """
     Usage
@@ -156,6 +142,7 @@ def point_to_seg_2(p, s1, s2, dps1, dps2, ds):
     return dpl
 
 
+@jit(float64(float64[:], float64[:, :], float64[:], float64[:], int64))
 def point_to_trajectory_2(p, t, mdist_p, t_dist, l_t):
     """
     Usage
@@ -173,8 +160,10 @@ def point_to_trajectory_2(p, t, mdist_p, t_dist, l_t):
     dpt : float,
           Point-to-trajectory distance between p and trajectory t
     """
-    dpt = min(
-        map(lambda it: point_to_seg_2(p, t[it], t[it + 1], mdist_p[it], mdist_p[it + 1], t_dist[it]), range(l_t - 1)))
+    all_dpt = np.empty(l_t-1)
+    for it in range(l_t-1):
+        all_dpt[it] = point_to_seg_2(p, t[it], t[it + 1], mdist_p[it], mdist_p[it + 1], t_dist[it])
+    dpt = np.min( all_dpt)
     return dpt
 
 

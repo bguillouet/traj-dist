@@ -10,61 +10,36 @@ from pydist.discret_frechet import discret_frechet
 from pydist.hausdorff import e_hausdorff, g_hausdorff
 from pydist.sowd import sowd_grid
 
-from cydist.sspd import c_e_sspd, c_g_sspd
-from cydist.dtw import c_e_dtw, c_g_dtw
-from cydist.erp import c_e_erp, c_g_erp
-from cydist.edr import c_e_edr, c_g_edr
-from cydist.lcss import c_e_lcss, c_g_lcss
-from cydist.hausdorff import c_e_hausdorff, c_g_hausdorff
-from cydist.discret_frechet import c_discret_frechet
-from cydist.frechet import c_frechet
-from cydist.sowd import c_sowd_grid
-
 import numpy as np
 
 import warnings
 
-__all__ = ["pdist","cdist", "sspd", "sowd_grid", "frechet", "discret_frechet", "hausdorff", "dtw", "lcss", "edr", "erp"]
+__all__ = ["pdist", "cdist", "sspd", "sowd_grid", "frechet", "discret_frechet", "hausdorff", "dtw", "lcss", "edr",
+           "erp"]
 
-METRIC_DIC = {"geographical": {"cython": {"sspd": c_g_sspd,
-                                          "dtw": c_g_dtw,
-                                          "lcss": c_g_lcss,
-                                          "hausdorff":c_g_hausdorff,
-                                          "sowd_grid": c_sowd_grid,
-                                          "erp" : c_g_erp,
-                                          "edr" : c_g_edr },
-                               "python": {"sspd": g_sspd,
-                                          "dtw": g_dtw,
-                                          "lcss": g_lcss,
-                                          "hausdorff":g_hausdorff,
-                                          "sowd_grid": sowd_grid,
-                                          "erp" : g_erp,
-                                          "edr" : g_edr }},
-              "euclidean": {"cython": {"sspd": c_e_sspd,
-                                       "dtw": c_e_dtw,
-                                       "lcss": c_e_lcss,
-                                       "hausdorff":c_e_hausdorff,
-                                       "discret_frechet": c_discret_frechet,
-                                       "frechet": c_frechet,
-                                       "sowd_grid": c_sowd_grid,
-                                        "erp": c_e_erp,
-                                        "edr": c_e_edr },
-                            "python": {"sspd": e_sspd,
-                                       "dtw": e_dtw,
-                                       "lcss": e_lcss,
-                                       "hausdorff": e_hausdorff,
-                                       "discret_frechet": discret_frechet,
-                                       "frechet": frechet,
-                                       "sowd_grid":sowd_grid,
-                                       "erp" : e_erp,
-                                       "edr" : e_edr }}}
+METRIC_DIC = {"geographical": {"sspd": g_sspd,
+                               "dtw": g_dtw,
+                               "lcss": g_lcss,
+                               "hausdorff": g_hausdorff,
+                               "sowd_grid": sowd_grid,
+                               "erp": g_erp,
+                               "edr": g_edr},
+              "euclidean": {"sspd": e_sspd,
+                            "dtw": e_dtw,
+                            "lcss": e_lcss,
+                            "hausdorff": e_hausdorff,
+                            "discret_frechet": discret_frechet,
+                            "frechet": frechet,
+                            "sowd_grid": sowd_grid,
+                            "erp": e_erp,
+                            "edr": e_edr}}
 
 
 # #################
 # Simple Distance #
 # #################
 
-def sspd(traj_1, traj_2, type_d = "euclidean", implementation = "auto"):
+def sspd(traj_1, traj_2, type_d="euclidean"):
     """
     Usage
     -----
@@ -92,37 +67,22 @@ def sspd(traj_1, traj_2, type_d = "euclidean", implementation = "auto"):
 
     dist : a float. The sspd distance between traj_1 and traj_2
     """
-    dim_1= traj_1.shape[1]
-    dim_2= traj_2.shape[1]
+    dim_1 = traj_1.shape[1]
+    dim_2 = traj_2.shape[1]
 
     if dim_1 != dim_2:
-        raise ValueError("Trajectories should have same dimensions. %d and %d given" %(dim_1,dim_2))
+        raise ValueError("Trajectories should have same dimensions. %d and %d given" % (dim_1, dim_2))
     dim = dim_1
 
     if not (type_d in ["geographical", "euclidean"]):
         raise ValueError("The type_d argument should be 'euclidean' or 'geographical'\ntype_d given is : " + type_d)
 
-    if not (implementation in ["cython", "python", "auto"]):
-        raise ValueError("The implementation argument should be 'cython', 'python' or 'auto'\n implementation given "
-                         "is : " + implementation)
-    if dim!=2 and implementation == "cython":
-        raise ValueError("Implementation with cython is disponible only with 2-dimension trajectories, "
-                         "not %d-dimension" %dim)
-    if dim!=2 and implementation == "geographical":
-        raise ValueError("Geographical distance implies 2-dimension trajectories, "
-                         "not %d-dimension" %dim)
-    if implementation =="auto":
-        if dim == 2:
-            implementation = "cython"
-        else:
-            implementation = "python"
-
-    dist_func = METRIC_DIC[type_d][implementation]["sspd"]
+    dist_func = METRIC_DIC[type_d]["sspd"]
     dist = dist_func(traj_1, traj_2)
     return dist
 
 
-def sowd_grid(traj_1, traj_2, type_d = "euclidean", implementation = "auto", converted = None, precision=None):
+def sowd_grid(traj_1, traj_2, type_d="euclidean", converted=None, precision=None):
     """
     Usage
     -----
@@ -156,57 +116,41 @@ def sowd_grid(traj_1, traj_2, type_d = "euclidean", implementation = "auto", con
 
     dist : a float. The sowd_grid distance between traj_1 and traj_2
     """
-    dim_1= traj_1.shape[1]
-    dim_2= traj_2.shape[1]
+    dim_1 = traj_1.shape[1]
+    dim_2 = traj_2.shape[1]
 
     if dim_1 != dim_2:
-        raise ValueError("Trajectories should have same dimensions. %d and %d given" %(dim_1,dim_2))
+        raise ValueError("Trajectories should have same dimensions. %d and %d given" % (dim_1, dim_2))
     dim = dim_1
 
     if not (type_d in ["geographical", "euclidean"]):
         raise ValueError("The type_d argument should be 'euclidean' or 'geographical'\ntype_d given is : " + type_d)
 
-    if not (implementation in ["cython", "python", "auto"]):
-        raise ValueError("The implementation argument should be 'cython', 'python' or 'auto'\n implementation given "
-                         "is : " + implementation)
-    if type_d == "euclidean" and not(converted):
-            raise Warning("Euclidean implementation for distance sowd_grid is not "
-                             "disponible if your data is not already converted in cell format")
-    if dim!=2 and implementation == "cython":
-        raise ValueError("Implementation with cython is disponible only with 2-dimension trajectories, "
-                         "not %d-dimension" %dim)
-    if dim!=2 and implementation == "geographical":
-        raise ValueError("Geographical distance implies 2-dimension trajectories, "
-                         "not %d-dimension" %dim)
-
-    if implementation =="auto":
-        if dim == 2:
-            implementation = "cython"
-        else:
-            implementation = "python"
-
+    if type_d == "euclidean" and not converted:
+        raise Warning("Euclidean implementation for distance sowd_grid is not "
+                      "disponible if your data is not already converted in cell format")
     if converted is None:
         warnings.warn("converted parameter should be specified for metric sowd_grid. Default "
                       "is True")
         converted = True
     if converted:
-        cells_list=[traj_1, traj_2]
+        cells_list = [traj_1, traj_2]
     else:
         if precision is None:
             warnings.warn("precision parameter should be specified for metric sowd_grid if converted "
-                  "is False. Default is 7")
+                          "is False. Default is 7")
             precision = 7
         print("Cells conversion start")
-        cells_list_, _, _, _, _ =trajectory_set_grid([traj_1, traj_2],precision)
-        cells_list = [np.array(cells_list_[0])[:,:2],np.array(cells_list_[1])[:,:2]]
+        cells_list_, _, _, _, _ = trajectory_set_grid([traj_1, traj_2], precision)
+        cells_list = [np.array(cells_list_[0])[:, :2], np.array(cells_list_[1])[:, :2]]
         print("Cells conversion ok")
 
-    dist_func = METRIC_DIC[type_d][implementation]["sowd_grid"]
+    dist_func = METRIC_DIC[type_d]["sowd_grid"]
     dist = dist_func(cells_list[0], cells_list[1])
     return dist
 
 
-def frechet(traj_1, traj_2, type_d = "euclidean", implementation = "auto"):
+def frechet(traj_1, traj_2, type_d="euclidean"):
     """
     Usage
     -----
@@ -224,42 +168,28 @@ def frechet(traj_1, traj_2, type_d = "euclidean", implementation = "auto"):
     param traj_1         : a 2-D numpry array
     param traj_2         : a 2-D numpry array
     param type_d         : string, distance type_d used (geographical or euclidean)
-    param implementation : string, implementation used (python, cython, auto)
 
     Returns
     -------
 
     dist : a float. The frechet distance between traj_1 and traj_2
     """
-    dim_1= traj_1.shape[1]
-    dim_2= traj_2.shape[1]
+    dim_1 = traj_1.shape[1]
+    dim_2 = traj_2.shape[1]
 
     if dim_1 != dim_2:
-        raise ValueError("Trajectories should have same dimensions. %d and %d given" %(dim_1,dim_2))
+        raise ValueError("Trajectories should have same dimensions. %d and %d given" % (dim_1, dim_2))
     dim = dim_1
 
     if type_d != "euclidean":
         raise ValueError("The type_d argument should be 'euclidean'\ntype_d given is : " + type_d)
 
-    if not (implementation in ["cython", "python", "auto"]):
-        raise ValueError("The implementation argument should be 'cython', 'python' or 'auto'\n implementation given "
-                         "is : " + implementation)
-    if dim!=2 and implementation == "cython":
-        raise ValueError("Implementation with cython is disponible only with 2-dimension trajectories, "
-                         "not %d-dimension" %dim)
-
-    if implementation =="auto":
-        if dim == 2:
-            implementation = "cython"
-        else:
-            implementation = "python"
-
-    dist_func = METRIC_DIC[type_d][implementation]["frechet"]
+    dist_func = METRIC_DIC[type_d]["frechet"]
     dist = dist_func(traj_1, traj_2)
     return dist
 
 
-def discret_frechet(traj_1, traj_2, type_d = "euclidean", implementation = "auto"):
+def discret_frechet(traj_1, traj_2, type_d="euclidean"):
     """
     Usage
     -----
@@ -284,35 +214,22 @@ def discret_frechet(traj_1, traj_2, type_d = "euclidean", implementation = "auto
 
     dist : a float. The discret_frechet distance between traj_1 and traj_2
     """
-    dim_1= traj_1.shape[1]
-    dim_2= traj_2.shape[1]
+    dim_1 = traj_1.shape[1]
+    dim_2 = traj_2.shape[1]
 
     if dim_1 != dim_2:
-        raise ValueError("Trajectories should have same dimensions. %d and %d given" %(dim_1,dim_2))
+        raise ValueError("Trajectories should have same dimensions. %d and %d given" % (dim_1, dim_2))
     dim = dim_1
 
     if type_d != "euclidean":
         raise ValueError("The type_d argument should be 'euclidean'\ntype_d given is : " + type_d)
 
-    if not (implementation in ["cython", "python", "auto"]):
-        raise ValueError("The implementation argument should be 'cython', 'python' or 'auto'\n implementation given "
-                         "is : " + implementation)
-    if dim!=2 and implementation == "cython":
-        raise ValueError("Implementation with cython is disponible only with 2-dimension trajectories, "
-                         "not %d-dimension" %dim)
-
-    if implementation =="auto":
-        if dim == 2:
-            implementation = "cython"
-        else:
-            implementation = "python"
-
-    dist_func = METRIC_DIC[type_d][implementation]["discret_frechet"]
+    dist_func = METRIC_DIC[type_d]["discret_frechet"]
     dist = dist_func(traj_1, traj_2)
     return dist
 
 
-def hausdorff(traj_1, traj_2, type_d = "euclidean", implementation = "auto"):
+def hausdorff(traj_1, traj_2, type_d="euclidean"):
     """
     Usage
     -----
@@ -340,37 +257,22 @@ def hausdorff(traj_1, traj_2, type_d = "euclidean", implementation = "auto"):
 
     dist : a float. The hausdorff distance between traj_1 and traj_2
     """
-    dim_1= traj_1.shape[1]
-    dim_2= traj_2.shape[1]
+    dim_1 = traj_1.shape[1]
+    dim_2 = traj_2.shape[1]
 
     if dim_1 != dim_2:
-        raise ValueError("Trajectories should have same dimensions. %d and %d given" %(dim_1,dim_2))
+        raise ValueError("Trajectories should have same dimensions. %d and %d given" % (dim_1, dim_2))
     dim = dim_1
 
     if not (type_d in ["geographical", "euclidean"]):
         raise ValueError("The type_d argument should be 'euclidean' or 'geographical'\ntype_d given is : " + type_d)
 
-    if not (implementation in ["cython", "python", "auto"]):
-        raise ValueError("The implementation argument should be 'cython', 'python' or 'auto'\n implementation given "
-                         "is : " + implementation)
-    if dim!=2 and implementation == "cython":
-        raise ValueError("Implementation with cython is disponible only with 2-dimension trajectories, "
-                         "not %d-dimension" %dim)
-    if dim!=2 and implementation == "geographical":
-        raise ValueError("Geographical distance implies 2-dimension trajectories, "
-                         "not %d-dimension" %dim)
-    if implementation =="auto":
-        if dim == 2:
-            implementation = "cython"
-        else:
-            implementation = "python"
-
-    dist_func = METRIC_DIC[type_d][implementation]["hausdorff"]
+    dist_func = METRIC_DIC[type_d]["hausdorff"]
     dist = dist_func(traj_1, traj_2)
     return dist
 
 
-def dtw(traj_1, traj_2, type_d = "euclidean", implementation = "auto"):
+def dtw(traj_1, traj_2, type_d="euclidean"):
     """
     Usage
     -----
@@ -398,37 +300,22 @@ def dtw(traj_1, traj_2, type_d = "euclidean", implementation = "auto"):
 
     dist : a float. The dtw distance between traj_1 and traj_2
     """
-    dim_1= traj_1.shape[1]
-    dim_2= traj_2.shape[1]
+    dim_1 = traj_1.shape[1]
+    dim_2 = traj_2.shape[1]
 
     if dim_1 != dim_2:
-        raise ValueError("Trajectories should have same dimensions. %d and %d given" %(dim_1,dim_2))
+        raise ValueError("Trajectories should have same dimensions. %d and %d given" % (dim_1, dim_2))
     dim = dim_1
 
     if not (type_d in ["geographical", "euclidean"]):
         raise ValueError("The type_d argument should be 'euclidean' or 'geographical'\ntype_d given is : " + type_d)
 
-    if not (implementation in ["cython", "python", "auto"]):
-        raise ValueError("The implementation argument should be 'cython', 'python' or 'auto'\n implementation given "
-                         "is : " + implementation)
-    if dim!=2 and implementation == "cython":
-        raise ValueError("Implementation with cython is disponible only with 2-dimension trajectories, "
-                         "not %d-dimension" %dim)
-    if dim!=2 and implementation == "geographical":
-        raise ValueError("Geographical distance implies 2-dimension trajectories, "
-                         "not %d-dimension" %dim)
-    if implementation =="auto":
-        if dim == 2:
-            implementation = "cython"
-        else:
-            implementation = "python"
-
-    dist_func = METRIC_DIC[type_d][implementation]["dtw"]
+    dist_func = METRIC_DIC[type_d]["dtw"]
     dist = dist_func(traj_1, traj_2)
     return dist
 
 
-def lcss(traj_1, traj_2, type_d = "euclidean", implementation = "auto", eps=200):
+def lcss(traj_1, traj_2, type_d="euclidean", eps=200):
     """
     Usage
     -----
@@ -456,37 +343,22 @@ def lcss(traj_1, traj_2, type_d = "euclidean", implementation = "auto", eps=200)
 
     dist : a float. The lcss distance between traj_1 and traj_2
     """
-    dim_1= traj_1.shape[1]
-    dim_2= traj_2.shape[1]
+    dim_1 = traj_1.shape[1]
+    dim_2 = traj_2.shape[1]
 
     if dim_1 != dim_2:
-        raise ValueError("Trajectories should have same dimensions. %d and %d given" %(dim_1,dim_2))
+        raise ValueError("Trajectories should have same dimensions. %d and %d given" % (dim_1, dim_2))
     dim = dim_1
 
     if not (type_d in ["geographical", "euclidean"]):
         raise ValueError("The type_d argument should be 'euclidean' or 'geographical'\ntype_d given is : " + type_d)
 
-    if not (implementation in ["cython", "python", "auto"]):
-        raise ValueError("The implementation argument should be 'cython', 'python' or 'auto'\n implementation given "
-                         "is : " + implementation)
-    if dim!=2 and implementation == "cython":
-        raise ValueError("Implementation with cython is disponible only with 2-dimension trajectories, "
-                         "not %d-dimension" %dim)
-    if dim!=2 and implementation == "geographical":
-        raise ValueError("Geographical distance implies 2-dimension trajectories, "
-                         "not %d-dimension" %dim)
-    if implementation =="auto":
-        if dim == 2:
-            implementation = "cython"
-        else:
-            implementation = "python"
-
-    dist_func = METRIC_DIC[type_d][implementation]["lcss"]
+    dist_func = METRIC_DIC[type_d]["lcss"]
     dist = dist_func(traj_1, traj_2, eps)
     return dist
 
 
-def edr(traj_1, traj_2, type_d = "euclidean", implementation = "auto", eps = 200):
+def edr(traj_1, traj_2, type_d="euclidean", eps=200):
     """
     Usage
     -----
@@ -514,37 +386,22 @@ def edr(traj_1, traj_2, type_d = "euclidean", implementation = "auto", eps = 200
 
     dist : a float. The edr distance between traj_1 and traj_2
     """
-    dim_1= traj_1.shape[1]
-    dim_2= traj_2.shape[1]
+    dim_1 = traj_1.shape[1]
+    dim_2 = traj_2.shape[1]
 
     if dim_1 != dim_2:
-        raise ValueError("Trajectories should have same dimensions. %d and %d given" %(dim_1,dim_2))
+        raise ValueError("Trajectories should have same dimensions. %d and %d given" % (dim_1, dim_2))
     dim = dim_1
 
     if not (type_d in ["geographical", "euclidean"]):
         raise ValueError("The type_d argument should be 'euclidean' or 'geographical'\ntype_d given is : " + type_d)
 
-    if not (implementation in ["cython", "python", "auto"]):
-        raise ValueError("The implementation argument should be 'cython', 'python' or 'auto'\n implementation given "
-                         "is : " + implementation)
-    if dim!=2 and implementation == "cython":
-        raise ValueError("Implementation with cython is disponible only with 2-dimension trajectories, "
-                         "not %d-dimension" %dim)
-    if dim!=2 and implementation == "geographical":
-        raise ValueError("Geographical distance implies 2-dimension trajectories, "
-                         "not %d-dimension" %dim)
-    if implementation =="auto":
-        if dim == 2:
-            implementation = "cython"
-        else:
-            implementation = "python"
-
-    dist_func = METRIC_DIC[type_d][implementation]["edr"]
+    dist_func = METRIC_DIC[type_d]["edr"]
     dist = dist_func(traj_1, traj_2, eps)
     return dist
 
 
-def erp(traj_1, traj_2, type_d = "euclidean", implementation = "auto", g = None):
+def erp(traj_1, traj_2, type_d="euclidean", g=None):
     """
     Usage
     -----
@@ -572,54 +429,35 @@ def erp(traj_1, traj_2, type_d = "euclidean", implementation = "auto", g = None)
 
     dist : a float. The erp distance between traj_1 and traj_2
     """
-    dim_1= traj_1.shape[1]
-    dim_2= traj_2.shape[1]
+    dim_1 = traj_1.shape[1]
+    dim_2 = traj_2.shape[1]
 
     if dim_1 != dim_2:
-        raise ValueError("Trajectories should have same dimensions. %d and %d given" %(dim_1,dim_2))
+        raise ValueError("Trajectories should have same dimensions. %d and %d given" % (dim_1, dim_2))
     dim = dim_1
 
     if g is None:
-        g = np.zeros(dim,dtype=float)
+        g = np.zeros(dim, dtype=float)
         warnings.warn("g parameter should be specified for metric erp. Default is ")
         print(g)
     else:
-        if g.shape[0]!= dim :
+        if g.shape[0] != dim:
             raise ValueError("g and trajectories in list should have same dimension")
 
     if not (type_d in ["geographical", "euclidean"]):
         raise ValueError("The type_d argument should be 'euclidean' or 'geographical'\ntype_d given is : " + type_d)
 
-    if not (implementation in ["cython", "python", "auto"]):
-        raise ValueError("The implementation argument should be 'cython', 'python' or 'auto'\n implementation given "
-                         "is : " + implementation)
-    if dim!=2 and implementation == "cython":
-        raise ValueError("Implementation with cython is disponible only with 2-dimension trajectories, "
-                         "not %d-dimension" %dim)
-    if dim!=2 and implementation == "geographical":
-        raise ValueError("Geographical distance implies 2-dimension trajectories, "
-                         "not %d-dimension" %dim)
-    if implementation =="auto":
-        if dim == 2:
-            implementation = "cython"
-        else:
-            implementation = "python"
-
-    dist_func = METRIC_DIC[type_d][implementation]["erp"]
+    dist_func = METRIC_DIC[type_d]["erp"]
     dist = dist_func(traj_1, traj_2, g)
     return dist
-
-
-
-
 
 
 # ####################
 # Pairwise Distance #
 # ####################
 
-def pdist(traj_list, metric="sspd", type_d="euclidean", implementation="auto", converted = None, precision = None,
-              eps= None, g = None ):
+def pdist(traj_list, metric="sspd", type_d="euclidean", converted=None, precision=None,
+          eps=None, g=None):
     """
     Usage
     -----
@@ -700,12 +538,11 @@ def pdist(traj_list, metric="sspd", type_d="euclidean", implementation="auto", c
     M : a nT x nT numpy array. Where the i,j entry is the distance between traj_list[i] and traj_list[j]
     """
 
-
-    list_dim = map(lambda x: x.shape[1] if len(x.shape)>1 else 1, traj_list)
+    list_dim = map(lambda x: x.shape[1] if len(x.shape) > 1 else 1, traj_list)
     nb_traj = len(traj_list)
     if not (len(set(list_dim)) == 1):
         raise ValueError("All trajectories must have same dimesion !")
-    dim= list_dim[0]
+    dim = list_dim[0]
 
     if not (metric in ["sspd", "dtw", "lcss", "hausdorff", "frechet", "discret_frechet", "sowd_grid",
                        "erp", "edr"]):
@@ -715,98 +552,85 @@ def pdist(traj_list, metric="sspd", type_d="euclidean", implementation="auto", c
     if not (type_d in ["geographical", "euclidean"]):
         raise ValueError("The type_d argument should be 'euclidean' or 'geographical'\ntype_d given is : " + type_d)
 
-    if not (implementation in ["cython", "python", "auto"]):
-        raise ValueError("The implementation argument should be 'cython', 'python' or 'auto'\n implementation given "
-                         "is : " + implementation)
-
     if type_d == "geographical" and (metric in ["frechet", "discret_frechet"]):
-        raise ValueError("Geographical implementation for distance "+metric+" is not "
-                         "disponible")
-    if type_d == "euclidean" and (metric in ["sowd","sowd_grid"]):
-        if not(converted):
-            raise ValueError("Euclidean implementation for distance "+metric+" is not "
-                             "disponible if your data is not already converted in cell format")
-    if dim!=2 and implementation == "cython":
-        raise ValueError("Implementation with cython is disponible only with 2-dimension trajectories, "
-                         "not %d-dimension" %dim)
-    if dim!=2 and implementation == "geographical":
-        raise ValueError("Geographical distance implies 2-dimension trajectories, "
-                         "not %d-dimension" %dim)
+        raise ValueError("Geographical implementation for distance " + metric + " is not "
+                                                                                "disponible")
+    if type_d == "euclidean" and (metric in ["sowd", "sowd_grid"]):
+        if not converted:
+            raise ValueError("Euclidean implementation for distance " + metric + " is not "
+                                                                                 "disponible if your data is not already converted in cell format")
 
-    if implementation =="auto":
-        if dim == 2:
-            implementation = "cython"
-        else:
-            implementation = "python"
-
-    print("Computing " + type_d + " distance " + metric + " with implementation " + implementation + " for %d trajectories" % nb_traj)
+    print(
+            "Computing " + type_d + " distance " + metric + " for %d trajectories" % nb_traj)
     M = np.zeros(sum(range(nb_traj)))
-    dist = METRIC_DIC[type_d][implementation][metric]
+    dist = METRIC_DIC[type_d][metric]
     if metric.startswith("sowd_grid"):
         if converted is None:
             warnings.warn("converted parameter should be specified for metric sowd_grid. Default "
                           "is True")
             converted = True
         if converted:
-            cells_list=traj_list
+            cells_list = traj_list
         else:
             if precision is None:
                 warnings.warn("precision parameter should be specified for metric sowd_grid if converted "
-                      "is False. Default is 7")
+                              "is False. Default is 7")
                 precision = 7
             print("Cells conversion start")
-            cells_list_, _, _, _, _ =trajectory_set_grid(traj_list,precision)
-            cells_list = map(lambda x : np.array(x)[:,:2],cells_list_)
+            cells_list_, _, _, _, _ = trajectory_set_grid(traj_list, precision)
+            cells_list = map(lambda x: np.array(x)[:, :2], cells_list_)
             print("Cells conversion ok")
         im = 0
         for i in range(nb_traj):
-            cells_list_i=cells_list[i]
+            cells_list_i = cells_list[i]
             for j in range(i + 1, nb_traj):
-                cells_list_j=cells_list[j]
+                cells_list_j = cells_list[j]
                 M[im] = dist(cells_list_i, cells_list_j)
-                im+=1
+                im += 1
     elif metric == "erp":
         if g is None:
-            g = np.zeros(dim,dtype=float)
+            g = np.zeros(dim, dtype=float)
             warnings.warn("g parameter should be specified for metric erp. Default is ")
             print(g)
         else:
-            if g.shape[0]!= dim :
+            if g.shape[0] != dim:
                 raise ValueError("g and trajectories in list should have same dimension")
         im = 0
         for i in range(nb_traj):
             traj_list_i = traj_list[i]
             for j in range(i + 1, nb_traj):
                 traj_list_j = traj_list[j]
-                M[im] = dist(traj_list_i, traj_list_j,g)
-                im+=1
+                M[im] = dist(traj_list_i, traj_list_j, g)
+                im += 1
     elif metric == "lcss" or metric == "edr":
         if eps is None:
             warnings.warn("eps parameter should be specified for metric 'lcss' and 'edr', default is 100 ")
-            eps=100
+            eps = 100
         im = 0
         for i in range(nb_traj):
             traj_list_i = traj_list[i]
             for j in range(i + 1, nb_traj):
                 traj_list_j = traj_list[j]
-                M[im] = dist(traj_list_i, traj_list_j,eps)
-                im+=1
+                M[im] = dist(traj_list_i, traj_list_j, eps)
+                im += 1
     else:
-        im=0
+        im = 0
         for i in range(nb_traj):
             traj_list_i = traj_list[i]
             for j in range(i + 1, nb_traj):
                 traj_list_j = traj_list[j]
                 M[im] = dist(traj_list_i, traj_list_j)
-                im+=1
+                im += 1
     return M
+
 
 # ########################
 #  Distance between list #
 # ########################
 
-def cdist(traj_list_1, traj_list_2, metric="sspd", type_d="euclidean", implementation="auto", converted = None, precision = None,
-          eps= None, g = None ):
+def cdist(traj_list_1, traj_list_2, metric="sspd", type_d="euclidean", converted=None,
+          precision=None,
+          eps=None, g=None):
     """
     Usage
     -----
@@ -894,7 +718,7 @@ def cdist(traj_list_1, traj_list_2, metric="sspd", type_d="euclidean", implement
     nb_traj_2 = len(traj_list_2)
     if not (len(set(list_dim_1 + list_dim_2)) == 1):
         raise ValueError("All trajectories must have same dimesion !")
-    dim= list_dim_1[0]
+    dim = list_dim_1[0]
 
     if not (metric in ["sspd", "dtw", "lcss", "hausdorff", "frechet", "discret_frechet", "sowd_grid",
                        "erp", "edr"]):
@@ -904,48 +728,35 @@ def cdist(traj_list_1, traj_list_2, metric="sspd", type_d="euclidean", implement
     if not (type_d in ["geographical", "euclidean"]):
         raise ValueError("The type_d argument should be 'euclidean' or 'geographical'\ntype_d given is : " + type_d)
 
-    if not (implementation in ["cython", "python", "auto"]):
-        raise ValueError("The implementation argument should be 'cython', 'python' or 'auto'\n implementation given "
-                         "is : " + implementation)
-
     if type_d == "geographical" and (metric in ["frechet", "discret_frechet"]):
-        raise ValueError("Geographical implementation for distance "+metric+" is not "
-                         "disponible")
-    if type_d == "euclidean" and (metric in ["sowd","sowd_grid"]):
-        if not(converted):
-            raise ValueError("Euclidean implementation for distance "+metric+" is not "
-                             "disponible if your data is not already converted in cell format")
-    if dim!=2 and implementation == "cython":
-        raise ValueError("Implementation with cython is disponible only with 2-dimension trajectories, "
-                         "not %d-dimension" %dim)
+        raise ValueError("Geographical implementation for distance " + metric + " is not "
+                                                                                "disponible")
+    if type_d == "euclidean" and (metric in ["sowd", "sowd_grid"]):
+        if not (converted):
+            raise ValueError("Euclidean implementation for distance " + metric + " is not "
+                                                                                 "disponible if your data is not already converted in cell format")
 
-    if implementation =="auto":
-        if dim == 2:
-            implementation = "cython"
-        else:
-            implementation = "python"
-
-    print("Computing " + type_d + " distance " + metric + " with implementation " + implementation + " for %d and %d "
-                                                                                                   "trajectories" %
-          (nb_traj_1,nb_traj_2))
+    print("Computing " + type_d + " distance " + metric + " for %d and %d "
+                                                          "trajectories" %
+          (nb_traj_1, nb_traj_2))
     M = np.zeros((nb_traj_1, nb_traj_2))
-    dist = METRIC_DIC[type_d][implementation][metric]
+    dist = METRIC_DIC[type_d][metric]
     if metric.startswith("sowd_grid"):
         if converted is None:
             warnings.warn("converted parameter should be specified for metric sowd_grid. Default "
                           "is True")
             converted = True
         if converted:
-            cells_list_1=traj_list_1
-            cells_list_2=traj_list_2
+            cells_list_1 = traj_list_1
+            cells_list_2 = traj_list_2
         else:
             if precision is None:
                 warnings.warn("precision parameter should be specified for metric sowd_grid  if converted "
-                      "is False. Default is 7")
+                              "is False. Default is 7")
                 precision = 7
-            cells_list, _, _, _, _ =trajectory_set_grid(traj_list_1+traj_list_2,precision)
-            cells_list_1 =  map(lambda x : np.array(x)[:,:2],cells_list[:nb_traj_1])
-            cells_list_2 =  map(lambda x : np.array(x)[:,:2],cells_list[nb_traj_1:])
+            cells_list, _, _, _, _ = trajectory_set_grid(traj_list_1 + traj_list_2, precision)
+            cells_list_1 = map(lambda x: np.array(x)[:, :2], cells_list[:nb_traj_1])
+            cells_list_2 = map(lambda x: np.array(x)[:, :2], cells_list[nb_traj_1:])
         for i in range(nb_traj_1):
             cells_list_1_i = cells_list_1[i]
             for j in range(nb_traj_2):
@@ -953,26 +764,26 @@ def cdist(traj_list_1, traj_list_2, metric="sspd", type_d="euclidean", implement
                 M[i, j] = dist(cells_list_1_i, cells_list_2_j)
     elif metric == "erp":
         if g is None:
-            g = np.zeros(dim,dtype=float)
+            g = np.zeros(dim, dtype=float)
             warnings.warn("g parameter should be specified for metric erp. Default is ")
             print(g)
         else:
-            if g.shape[0]!= dim :
+            if g.shape[0] != dim:
                 raise ValueError("g and trajectories in list should have same dimension")
         for i in range(nb_traj_1):
             traj_list_1_i = traj_list_1[i]
             for j in range(nb_traj_2):
                 traj_list_2_j = traj_list_2[j]
-                M[i, j] = dist(traj_list_1_i, traj_list_2_j,g)
+                M[i, j] = dist(traj_list_1_i, traj_list_2_j, g)
     elif metric == "lcss" or metric == "edr":
         if eps is None:
             warnings.warn("eps parameter should be specified for metric 'lcss' and 'edr', default is 100 ")
-            eps=100
+            eps = 100
         for i in range(nb_traj_1):
             traj_list_1_i = traj_list_1[i]
             for j in range(nb_traj_2):
                 traj_list_2_j = traj_list_2[j]
-                M[i, j] = dist(traj_list_1_i, traj_list_2_j,eps)
+                M[i, j] = dist(traj_list_1_i, traj_list_2_j, eps)
     else:
         for i in range(nb_traj_1):
             traj_list_1_i = traj_list_1[i]

@@ -1,10 +1,11 @@
 Metadata-Version: 1.0
 Name: trajectory-distance
 Version: 1.0
-Summary: Distance to compare trajectories in Cython
+Summary: Distance to compare trajectories in Numba
 Home-page: UNKNOWN
 Author: Brendan Guillouet
 Author-email: brendan.guillouet@gmail.com
 License: UNKNOWN
+Description-Content-Type: UNKNOWN
 Description: UNKNOWN
 Platform: UNKNOWN

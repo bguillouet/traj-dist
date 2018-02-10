@@ -10,14 +10,8 @@ traj_list = [group[["lons","lats"]].values for _,group in data.groupby("id_traj"
 
 
 print("Start Running")
-print(timeit.timeit(lambda : tdist.pdist(traj_list[:100], metric="sspd", implementation="python"), number=1))
+print(timeit.timeit(lambda : tdist.pdist(traj_list[:100], metric="sspd"), number=1))
 print("End Running")
-
-
-print("Start Running")
-print(timeit.timeit(lambda : tdist.pdist(traj_list[:100], metric="sspd", implementation="cython"), number=1))
-print("End Running")
-
 
 #print("Start Running")
 #print(timeit.timeit(lambda : tdist.pdist(traj_list[:1000], metric="sspd", implementation="python"), number=1))
