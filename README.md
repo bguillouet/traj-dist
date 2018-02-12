@@ -1,8 +1,8 @@
 # trajectory_distance
 =====================
 
-**trajectory_distance** is a Python module for computing distance between 2D-trajectory objects.
-It is implemented in both Cython.
+**trajectory_distance** is a Python module for computing distances between 2D-trajectory objects.
+It is implemented in Cython.
 
 ## Description
 
@@ -24,7 +24,7 @@ It is implemented in both Cython.
 
 * Grid representation are used to compute the OWD distance. 
 
-* Python implementation are also available in this depository but are not used within `traj_dist.distance` module.
+* Python implementation is also available in this depository but are not used within `traj_dist.distance` module.
 
 ## Dependencies
 
@@ -40,7 +40,7 @@ It is implemented in both Cython.
 
 ## Install
 
-This package uses distutils.
+This package can be build using `distutils`.
 
 Move to the package directory and run :
 
@@ -62,9 +62,9 @@ You only need to import the distance module.
 import traj_dist.distance as tdist
 ```
 
-All distances are in this module. There is also two extra function 'cdist', and 'pdist' to compute distances between all trajectories in a list. 
+All distances are in this module. There are also two extra functions 'cdist', and 'pdist' to compute pairwise distances between all trajectories in a list or two lists. 
 
-Trajectory should be represented as 2-Dimensions numpy array. 
+Trajectory should be represented as nx2 numpy array. 
 See `traj_dist/example.py` file for a small working exemple. 
 
 Some distance requires extra-parameters.
@@ -72,7 +72,7 @@ See the help function for more information about how to use each distance.
 
 ## Performance
 
-Time required to compute pairwise distance between 100 trajectories (4950 distances), composed from 3 to 20 points (`data/benchmark.csv`) :
+The time required to compute pairwise distance between 100 trajectories (4950 distances), composed from 3 to 20 points (`data/benchmark.csv`) :
 
 | 		         | Euclidan      | Spherical |
 | ------------- |:-------------:| -----:|
