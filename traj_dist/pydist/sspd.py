@@ -1,5 +1,5 @@
 import numpy as np
-from basic_euclidean import eucl_dist, eucl_dist_traj, point_to_trajectory_2
+from basic_euclidean import eucl_dist, eucl_dist_traj, point_to_trajectory
 from basic_geographical import point_to_path
 
 
@@ -25,7 +25,7 @@ def e_spd(t1, t2, mdist, l_t1, l_t2, t2_dist):
            spd-distance of trajectory t2 from trajectory t1
     """
 
-    spd = sum(map(lambda i1: point_to_trajectory_2(t1[i1], t2, mdist[i1], t2_dist, l_t2), range(l_t1))) / l_t1
+    spd = sum(map(lambda i1: point_to_trajectory(t1[i1], t2, mdist[i1], t2_dist, l_t2), range(l_t1))) / l_t1
     return spd
 
 

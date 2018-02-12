@@ -1,5 +1,9 @@
+README.md
 setup.py
 traj_dist/__init__.py
+traj_dist/benchmark.py
+traj_dist/benchmark_tmp.py
+traj_dist/build_benchmark_data.py
 traj_dist/distance.py
 traj_dist/example.py
 traj_dist/cydist/__init__.py
@@ -29,6 +33,7 @@ traj_dist/pydist/linecell.py
 traj_dist/pydist/segment_distance.py
 traj_dist/pydist/sowd.py
 traj_dist/pydist/sspd.py
+traj_dist/pydist/sspd_v1.py
 trajectory_distance.egg-info/PKG-INFO
 trajectory_distance.egg-info/SOURCES.txt
 trajectory_distance.egg-info/dependency_links.txt

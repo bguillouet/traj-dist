@@ -1,24 +1,21 @@
-import numpy as np
-import pandas as pd
+import pickle
 import traj_dist.distance as tdist
 import timeit
+import collections
+import pandas as pd
+
+traj_list = pickle.load( open("/Users/bguillouet/These/trajectory_distance/data/" + "benchmark_trajectories.pkl","rb"))
+
+time_dict = collections.defaultdict(dict)
+
+for distance in  ["sspd", "frechet", "discret_frechet", "hausdorff", "dtw", "lcss", "edr", "erp"]:
+    t_python = timeit.timeit(lambda : tdist.pdist(traj_list[:100], metric=distance, implementation="python"), number=1)
+    t_cython = timeit.timeit(lambda : tdist.pdist(traj_list[:100], metric=distance, implementation="cython"), number=1)
+
+    time_dict[distance] = {"Python": t_python, "Cython": t_cython}
 
 
-data = pd.read_pickle("/Users/bguillouet/These/trajectory_review/data/extracted/starting_from/Caltrain_city_center_v3.pkl")
+df = pd.DataFrame(time_dict)
 
-traj_list = [group[["lons","lats"]].values for _,group in data.groupby("id_traj")]
+print(df)
 
-
-print("Start Running")
-print(timeit.timeit(lambda : tdist.pdist(traj_list[:100], metric="sspd", implementation="python"), number=1))
-print("End Running")
-
-
-print("Start Running")
-print(timeit.timeit(lambda : tdist.pdist(traj_list[:100], metric="sspd", implementation="cython"), number=1))
-print("End Running")
-
-
-#print("Start Running")
-#print(timeit.timeit(lambda : tdist.pdist(traj_list[:1000], metric="sspd", implementation="python"), number=1))
-#print("End Running")

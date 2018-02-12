@@ -2,10 +2,10 @@
 ## International Journal of Computational Geometry & Applications.
 ## Vol 5, Nos 1&2 (1995) 75-91
 
-from basic_euclidean import eucl_dist, point_to_seg, circle_line_intersection
+from basic_euclidean import eucl_dist, point_to_seg, circle_line_intersection, eucl_dist_traj
 
 
-def free_line(p, eps, s):
+def free_line(p, eps, s, dps1, dps2, ds):
     """
     Usage
     -----
@@ -33,14 +33,14 @@ def free_line(p, eps, s):
     s1y = s[0, 1]
     s2x = s[1, 0]
     s2y = s[1, 1]
-    if s1x == s2x and s1y==s2y:
+    if s1x == s2x and s1y == s2y:
         if eucl_dist(p, s[0]) > eps:
             lf = [-1, -1]
         else:
             lf = [0, 1]
     else:
-        if point_to_seg(p, s[0], s[1]) > eps:
-            #print("No Intersection")
+        if point_to_seg(p, s[0], s[1], dps1, dps2, ds) > eps:
+            # print("No Intersection")
             lf = [-1, -1]
         else:
             segl = eucl_dist(s[0], s[1])
@@ -57,10 +57,10 @@ def free_line(p, eps, s):
                 ordered_point = sorted((0, 1, u1, u2))
                 lf = ordered_point[1:3]
             else:
-                if px == s1x and py==s1y:
+                if px == s1x and py == s1y:
                     lf = [0, 0]
-                elif px == s2x and py==s2y:
-                     lf = [1, 1]
+                elif px == s2x and py == s2y:
+                    lf = [1, 1]
                 else:
                     i1x = intersect[0][0]
                     i1y = intersect[0][1]
@@ -72,7 +72,7 @@ def free_line(p, eps, s):
     return lf
 
 
-def LF_BF(P, Q, p, q, eps):
+def LF_BF(P, Q, p, q, eps, mdist, P_dist, Q_dist):
     """
     Usage
     -----
@@ -96,11 +96,11 @@ def LF_BF(P, Q, p, q, eps):
     LF = {}
     for j in range(q):
         for i in range(p - 1):
-            LF.update({(i, j): free_line(Q[j], eps, P[i:i + 2])})
+            LF.update({(i, j): free_line(Q[j], eps, P[i:i + 2], mdist[i, j], mdist[i + 1, j], P_dist[i])})
     BF = {}
     for j in range(q - 1):
         for i in range(p):
-            BF.update({(i, j): free_line(P[i], eps, Q[j:j + 2])})
+            BF.update({(i, j): free_line(P[i], eps, Q[j:j + 2], mdist[i, j], mdist[i, j + 1], Q_dist[j])})
     return LF, BF
 
 
@@ -127,10 +127,10 @@ def LR_BR(LF, BF, p, q):
     LR : dict, is the free space, reachable from the origin, of segments of P from points of Q
     BR : dict, is the free space, reachable from the origin, of segments of Q from points of P
     """
-    if not (LF[(0, 0)][0] <= 0 and BF[(0, 0)][0] <= 0 and LF[(p - 2, q - 1)][1] >= 1 and BF[(p - 1, q - 2)][1] >= 1 ):
+    if not (LF[(0, 0)][0] <= 0 and BF[(0, 0)][0] <= 0 and LF[(p - 2, q - 1)][1] >= 1 and BF[(p - 1, q - 2)][1] >= 1):
         rep = False
-        BR={}
-        LR={}
+        BR = {}
+        LR = {}
     else:
         LR = {(0, 0): True}
         BR = {(0, 0): True}
@@ -162,7 +162,7 @@ def LR_BR(LF, BF, p, q):
     return rep, LR, BR
 
 
-def decision_problem(P, Q, p, q, eps):
+def decision_problem(P, Q, p, q, eps, mdist, P_dist, Q_dist):
     """
     Usage
     -----
@@ -180,12 +180,12 @@ def decision_problem(P, Q, p, q, eps):
     -------
     rep : bool, return true if frechet distance is inf to eps
     """
-    LF, BF = LF_BF(P, Q, p, q, eps)
+    LF, BF = LF_BF(P, Q, p, q, eps, mdist, P_dist, Q_dist)
     rep, _, _ = LR_BR(LF, BF, p, q)
     return rep
 
 
-def compute_critical_values(P, Q, p, q):
+def compute_critical_values(P, Q, p, q, mdist, P_dist, Q_dist):
     """
     Usage
     -----
@@ -208,10 +208,10 @@ def compute_critical_values(P, Q, p, q):
     cc = set([end_point])
     for i in range(p - 1):
         for j in range(q - 1):
-            Lij = point_to_seg(Q[j], P[i], P[i + 1])
+            Lij = point_to_seg(Q[j], P[i], P[i + 1], mdist[i, j], mdist[i + 1, j], P_dist[i])
             if Lij > end_point:
                 cc.add(Lij)
-            Bij = point_to_seg(P[i], Q[j], Q[j + 1])
+            Bij = point_to_seg(P[i], Q[j], Q[j + 1], mdist[i, j], mdist[i, j + 1], Q_dist[j])
             if Bij > end_point:
                 cc.add(Bij)
     return sorted(list(cc))
@@ -235,12 +235,16 @@ def frechet(P, Q):
     p = len(P)
     q = len(Q)
 
-    cc = compute_critical_values(P, Q, p, q)
-    eps=cc[0]
+    mdist = eucl_dist_traj(P, Q)
+    P_dist = map(lambda ip: eucl_dist(P[ip], P[ip + 1]), range(p - 1))
+    Q_dist = map(lambda iq: eucl_dist(Q[iq], Q[iq + 1]), range(q - 1))
+
+    cc = compute_critical_values(P, Q, p, q, mdist, P_dist, Q_dist)
+    eps = cc[0]
     while (len(cc) != 1):
         m_i = len(cc) / 2 - 1
         eps = cc[m_i]
-        rep = decision_problem(P, Q, p, q, eps)
+        rep = decision_problem(P, Q, p, q, eps, mdist, P_dist, Q_dist)
         if rep:
             cc = cc[:m_i + 1]
         else:

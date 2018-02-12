@@ -23,75 +23,6 @@ def eucl_dist(x, y):
     return dist
 
 
-def point_to_seg(p, s1, s2):
-    """
-    Usage
-    -----
-    Point to segment distance between point p and segment delimited by s1 and s2
-
-    Parameters
-    ----------
-    param p : 1x2 numpy_array
-    param s1 : 1x2 numpy_array
-    param s2 : 1x2 numpy_array
-
-    Returns
-    -------
-    dpl: float
-         Point to segment distance between p and s
-    """
-    px = p[0]
-    py = p[1]
-    p1x = s1[0]
-    p1y = s1[1]
-    p2x = s2[0]
-    p2y = s2[1]
-    if p1x == p2x and p1y == p2y:
-        dpl = eucl_dist(p, s1)
-    else:
-        segl = eucl_dist(s1, s2)
-        u1 = (((px - p1x) * (p2x - p1x)) + ((py - p1y) * (p2y - p1y)))
-        u = u1 / (segl * segl)
-
-        if (u < 0.00001) or (u > 1):
-            # // closest point does not fall within the line segment, take the shorter distance
-            # // to an endpoint
-            ix = eucl_dist(p, s1)
-            iy = eucl_dist(p, s2)
-            if ix > iy:
-                dpl = iy
-            else:
-                dpl = ix
-        else:
-            # Intersecting point is on the line, use the formula
-            ix = p1x + u * (p2x - p1x)
-            iy = p1y + u * (p2y - p1y)
-            dpl = eucl_dist(p, np.array([ix, iy]))
-
-    return dpl
-
-
-def point_to_trajectory(p, t):
-    """
-    Usage
-    -----
-    Point-to-trajectory distance between point p and the trajectory t.
-    The Point to trajectory distance is the minimum of point-to-segment distance between p and all segment s of t
-
-    Parameters
-    ----------
-    param p: 1x2 numpy_array
-    param t : len(t)x2 numpy_array
-
-    Returns
-    -------
-    dpt : float,
-          Point-to-trajectory distance between p and trajectory t
-    """
-    dpt = min(map(lambda s1, s2: point_to_seg(p, s1, s2), t[:-1], t[1:]))
-    return dpt
-
-
 def eucl_dist_traj(t1, t2):
     """
     Usage
@@ -111,8 +42,7 @@ def eucl_dist_traj(t1, t2):
     mdist = cdist(t1, t2, 'euclidean')
     return mdist
 
-
-def point_to_seg_2(p, s1, s2, dps1, dps2, ds):
+def point_to_seg(p, s1, s2, dps1, dps2, ds):
     """
     Usage
     -----
@@ -156,7 +86,7 @@ def point_to_seg_2(p, s1, s2, dps1, dps2, ds):
     return dpl
 
 
-def point_to_trajectory_2(p, t, mdist_p, t_dist, l_t):
+def point_to_trajectory(p, t, mdist_p, t_dist, l_t):
     """
     Usage
     -----
@@ -174,7 +104,7 @@ def point_to_trajectory_2(p, t, mdist_p, t_dist, l_t):
           Point-to-trajectory distance between p and trajectory t
     """
     dpt = min(
-        map(lambda it: point_to_seg_2(p, t[it], t[it + 1], mdist_p[it], mdist_p[it + 1], t_dist[it]), range(l_t - 1)))
+        map(lambda it: point_to_seg(p, t[it], t[it + 1], mdist_p[it], mdist_p[it + 1], t_dist[it]), range(l_t - 1)))
     return dpt
 
 

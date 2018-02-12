@@ -83,28 +83,25 @@ cdef double _point_to_seg(double px, double py, double p1x, double p1y, double p
     dpl: float
          Point to segment distance between p and s
     """
-
-    cdef double segl,u1,u,ix,iy,dpl
+    cdef double segl,u,ix,iy,dpl, dpx,dpy
     if p1x==p2x and p1y==p2y:
         dpl=_eucl_dist(px,py,p1x,p1y)
     else:
         segl= _eucl_dist(p1x,p1y,p2x,p2y)
-        u1 = (((px - p1x) * (p2x - p1x)) + ((py - p1y) * (p2y - p1y)))
-        u = u1 / (segl * segl)
+        dpx = p2x - p1x
+        dpy = p2y - p1y
+        u = (((px - p1x) * dpx) + ((py - p1y) * dpy)) / (segl * segl)
 
         if (u < 0.00001) or (u > 1):
             #// closest point does not fall within the line segment, take the shorter distance
             #// to an endpoint
             ix = _eucl_dist(px,py,p1x,p1y)
             iy = _eucl_dist(px,py,p2x,p2y)
-            if ix > iy:
-                dpl = iy
-            else:
-                dpl = ix
+            dpl = fmin(ix,iy)
         else:
             # Intersecting point is on the line, use the formula
-            ix = p1x + u * (p2x - p1x)
-            iy = p1y + u * (p2y - p1y)
+            ix = p1x + u * dpx
+            iy = p1y + u * dpy
             dpl = _eucl_dist(px,py,ix,iy)
 
     return dpl
@@ -130,27 +127,25 @@ def c_point_to_seg(double px, double py, double p1x, double p1y, double p2x, dou
     dpl: float
          Point to segment distance between p and s
     """
-    cdef double segl,u1,u,ix,iy,dpl
+    cdef double segl,u,ix,iy,dpl, dpx,dpy
     if p1x==p2x and p1y==p2y:
         dpl=_eucl_dist(px,py,p1x,p1y)
     else:
         segl= _eucl_dist(p1x,p1y,p2x,p2y)
-        u1 = (((px - p1x) * (p2x - p1x)) + ((py - p1y) * (p2y - p1y)))
-        u = u1 / (segl * segl)
+        dpx = p2x - p1x
+        dpy = p2y - p1y
+        u = (((px - p1x) * dpx) + ((py - p1y) * dpy)) / (segl * segl)
 
         if (u < 0.00001) or (u > 1):
             #// closest point does not fall within the line segment, take the shorter distance
             #// to an endpoint
             ix = _eucl_dist(px,py,p1x,p1y)
             iy = _eucl_dist(px,py,p2x,p2y)
-            if ix > iy:
-                dpl = iy
-            else:
-                dpl = ix
+            dpl = fmin(ix,iy)
         else:
             # Intersecting point is on the line, use the formula
-            ix = p1x + u * (p2x - p1x)
-            iy = p1y + u * (p2y - p1y)
+            ix = p1x + u * dpx
+            iy = p1y + u * dpy
             dpl = _eucl_dist(px,py,ix,iy)
 
     return dpl
