@@ -745,8 +745,8 @@ def pdist(traj_list, metric="sspd", type_d="euclidean", implementation="auto", c
     if metric.startswith("sowd_grid"):
         if converted is None:
             warnings.warn("converted parameter should be specified for metric sowd_grid. Default "
-                          "is True")
-            converted = True
+                          "is False")
+            converted = False
         if converted:
             cells_list=traj_list
         else:

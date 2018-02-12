@@ -24,7 +24,7 @@ def owd_grid_brut(traj_cell_1,traj_cell_2):
         d=map(lambda x : np.linalg.norm(p1-x),traj_cell_2)
         D+=min(d)
     owd = D/n
-    return D/n
+    return owd
 
 
 def find_first_min_points(pt, n):

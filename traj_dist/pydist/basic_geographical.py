@@ -33,6 +33,30 @@ def great_circle_distance(lon1, lat1, lon2, lat2):
     d = R * c
     return d
 
+def great_circle_distance_traj(t1, t2):
+    """
+    Usage
+    -----
+    Compute the great circle distance, in meter, between (lon1,lat1) and (lon2,lat2)
+
+    Parameters
+    ----------
+    param lat1: float, latitude of the first point
+    param lon1: float, longitude of the first point
+    param lat2: float, latitude of the se*cond point
+    param lon2: float, longitude of the second point
+
+    Returns
+    -------x
+    d: float
+       Great circle distance between (lon1,lat1) and (lon2,lat2)
+    """
+
+    mdist = np.empty((l1,l2), dtype=float)
+    for i in range(l1):
+        for j in range(l2):
+            mdist[i,j] = great_circle_distance(t1[i], t2[j])
+    return mdist
 
 def initial_bearing(lon1, lat1, lon2, lat2):
     """
