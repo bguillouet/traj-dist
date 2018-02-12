@@ -1,11 +1,11 @@
 import numpy as np
 from basic_euclidean import eucl_dist, eucl_dist_traj, point_to_trajectory
-from basic_geographical import point_to_path
+from basic_geographical import point_to_path, great_circle_distance, great_circle_distance_traj
 
 
-###############
-## euclidean ##
-###############
+######################
+# Euclidean Geometry #
+######################
 
 def e_spd(t1, t2, mdist, l_t1, l_t2, t2_dist):
     """
@@ -56,11 +56,11 @@ def e_sspd(t1, t2):
     return sspd
 
 
-#################
-## geographical##
-#################
+######################
+# Spherical Geometry #
+######################
 
-def g_spd(t1, t2):
+def g_spd(lons0, lats0, lons1, lats1, n0, n1, mdist, t0_dist):
     """
     Usage
     -----
@@ -77,24 +77,19 @@ def g_spd(t1, t2):
     spd : float
            spd-distance of trajectory t2 from trajectory t1
     """
-    n0 = len(t1)
-    n1 = len(t2)
-    lats0 = t1[:, 1]
-    lons0 = t1[:, 0]
-    lats1 = t2[:, 1]
-    lons1 = t2[:, 0]
+
     dist = 0
     for j in range(n1):
         dist_j0 = 9e100
         for i in range(n0 - 1):
             dist_j0 = np.min((dist_j0, point_to_path(lons0[i], lats0[i], lons0[i + 1], lats0[i + 1], lons1[j],
-                                                     lats1[j])))
+                                                     lats1[j], mdist[i, j], mdist[i + 1, j], t0_dist[i])))
         dist = dist + dist_j0
     dist = float(dist) / n1
     return dist
 
 
-def g_sspd(t1, t2):
+def g_sspd(t0, t1):
     """
     Usage
     -----
@@ -111,5 +106,20 @@ def g_sspd(t1, t2):
     sspd : float
             sspd-distance of trajectory t2 from trajectory t1
     """
-    dist = g_spd(t1, t2) + g_spd(t2, t1)
+    n0 = len(t0)
+    n1 = len(t1)
+    lats0 = t0[:, 1]
+    lons0 = t0[:, 0]
+    lats1 = t1[:, 1]
+    lons1 = t1[:, 0]
+
+    mdist = great_circle_distance_traj(lons0, lats0, lons1, lats1, n0, n1)
+
+    t0_dist = map(lambda it0: great_circle_distance(lons0[it0], lats0[it0], lons0[it0 + 1], lats0[it0 + 1]),
+                  range(n0 - 1))
+    t1_dist = map(lambda it1: great_circle_distance(lons1[it1], lats1[it1], lons1[it1 + 1], lats1[it1 + 1]),
+                  range(n1 - 1))
+
+    dist = g_spd(lons0, lats0, lons1, lats1, n0, n1, mdist, t0_dist) + g_spd(lons1, lats1, lons0, lats0, n1, n0,
+                                                                             mdist.T, t1_dist)
     return dist

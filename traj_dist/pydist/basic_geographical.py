@@ -1,8 +1,8 @@
 import math
 import numpy as np
+
 rad = math.pi / 180.0
 R = 6378137.0
-
 
 
 def great_circle_distance(lon1, lat1, lon2, lat2):
@@ -33,7 +33,8 @@ def great_circle_distance(lon1, lat1, lon2, lat2):
     d = R * c
     return d
 
-def great_circle_distance_traj(t1, t2):
+
+def great_circle_distance_traj(lons1, lats1, lons2, lats2, l1, l2):
     """
     Usage
     -----
@@ -52,11 +53,12 @@ def great_circle_distance_traj(t1, t2):
        Great circle distance between (lon1,lat1) and (lon2,lat2)
     """
 
-    mdist = np.empty((l1,l2), dtype=float)
+    mdist = np.empty((l1, l2), dtype=float)
     for i in range(l1):
         for j in range(l2):
-            mdist[i,j] = great_circle_distance(t1[i], t2[j])
+            mdist[i, j] = great_circle_distance(lons1[i], lats1[i], lons2[j], lats2[j])
     return mdist
+
 
 def initial_bearing(lon1, lat1, lon2, lat2):
     """
@@ -86,7 +88,7 @@ def initial_bearing(lon1, lat1, lon2, lat2):
     return ibrng
 
 
-def cross_track_distance(lon1, lat1, lon2, lat2, lon3, lat3):
+def cross_track_distance(lon1, lat1, lon2, lat2, lon3, lat3, d13):
     """
     Usage
     -----
@@ -109,16 +111,15 @@ def cross_track_distance(lon1, lat1, lon2, lat2, lon3, lat3):
 
     """
 
-    d13 = great_circle_distance(lon1, lat1, lon3, lat3) # distance from start point to third point
-    theta13 = initial_bearing(lon1, lat1, lon3, lat3) # bearing from start point to third point
-    theta12 = initial_bearing(lon1, lat1, lon2, lat2) # bearing from start point to end point
+    theta13 = initial_bearing(lon1, lat1, lon3, lat3)  # bearing from start point to third point
+    theta12 = initial_bearing(lon1, lat1, lon2, lat2)  # bearing from start point to end point
 
     crt = math.asin(math.sin(d13 / R) * math.sin(theta13 - theta12)) * R
 
     return crt
 
 
-def along_track_distance(crt, lon1, lat1, lon3, lat3):
+def along_track_distance(crt, d13):
     """
     Usage
     -----
@@ -139,12 +140,11 @@ def along_track_distance(crt, lon1, lat1, lon3, lat3):
          The along-track distance
     """
 
-    d13 = great_circle_distance(lon1, lat1, lon3, lat3)
     alt = math.acos(math.cos(d13 / R) / math.cos(crt / R)) * R
     return alt
 
 
-def point_to_path(lon1, lat1, lon2, lat2, lon3, lat3):
+def point_to_path(lon1, lat1, lon2, lat2, lon3, lat3, d13, d23, d12):
     """
     Usage
     -----
@@ -169,12 +169,11 @@ def point_to_path(lon1, lat1, lon2, lat2, lon3, lat3):
           The point-to-path distance between point (lon3, lat3) and path delimited by (lon1, lat1) and (lon2, lat2)
 
     """
-    crt = cross_track_distance(lon1, lat1, lon2, lat2, lon3, lat3)
-    d1p = along_track_distance(crt, lon1, lat1, lon3, lat3)
-    d2p = along_track_distance(crt, lon2, lat2, lon3, lat3)
-    d12 = great_circle_distance(lon1, lat1, lon2, lat2)
+    crt = cross_track_distance(lon1, lat1, lon2, lat2, lon3, lat3, d13)
+    d1p = along_track_distance(crt, d13)
+    d2p = along_track_distance(crt, d23)
     if (d1p > d12) or (d2p > d12):
-        ptp = np.min((great_circle_distance(lon1, lat1, lon3, lat3), great_circle_distance(lon2, lat2, lon3, lat3)))
+        ptp = np.min((d13, d23))
     else:
         ptp = np.abs(crt)
     return ptp

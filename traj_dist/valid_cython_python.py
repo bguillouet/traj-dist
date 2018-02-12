@@ -9,7 +9,6 @@ traj_list = pickle.load(open("/Users/bguillouet/These/trajectory_distance/data/b
 time_dict = collections.defaultdict(dict)
 
 for distance in ["sspd","dtw", "frechet", "discret_frechet", "hausdorff", "dtw", "lcss", "edr", "erp", "sowd_grid"]:
-#for distance in ["sspd"]:
     if not (distance in ["sowd_grid"]):
         c_python= tdist.pdist(traj_list[:100], metric=distance, implementation="python")
         c_cython = tdist.pdist(traj_list[:100], metric=distance, implementation="cython")

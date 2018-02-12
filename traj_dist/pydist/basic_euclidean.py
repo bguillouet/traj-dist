@@ -42,6 +42,7 @@ def eucl_dist_traj(t1, t2):
     mdist = cdist(t1, t2, 'euclidean')
     return mdist
 
+
 def point_to_seg(p, s1, s2, dps1, dps2, ds):
     """
     Usage
