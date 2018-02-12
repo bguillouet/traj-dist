@@ -1,4 +1,6 @@
-numpy>=1.9.1
-cython>=0.21.2
-shapely>=1.5.6
-Geohash
+numpy>=1.14.0
+Cython>=0.27.3
+Shapely>=1.6.4
+Geohash==1.0
+pandas>=0.20.3
+scipy>=0.19.1

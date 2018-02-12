@@ -2,6 +2,7 @@ import Geohash.geohash as geoh
 import shapely.geometry as geos
 import numpy as np
 
+
 def linecell_lons_bigger_step(p1, p2, cell_start, lons_all, lats_all, lons_center_all, lats_center_all):
     reverse = False
     if p2[1] < p1[1]:
@@ -32,7 +33,7 @@ def linecell_lons_bigger_step(p1, p2, cell_start, lons_all, lats_all, lons_cente
     nlons = len(lons) - 2
     nlats = len(lats) - 2
 
-    if not (reverse):
+    if not reverse:
         cell = [cell_start]
     else:
         if order == "croissant":
@@ -91,7 +92,7 @@ def linecell_lats_bigger_step(p1, p2, cell_start, lons_all, lats_all, lons_cente
     nlons = len(lons) - 2
     nlats = len(lats) - 2
 
-    if not (reverse):
+    if not reverse:
         cell = [cell_start]
     else:
         if order == "croissant":
@@ -204,4 +205,3 @@ def trajectory_set_grid(traj_set, precision, time=False):
 def trajectory_grid(traj_0, precision):
     cells_list, lons_all, lats_all, lons_center_all, lats_center_all = trajectory_set_grid([traj_0], precision)
     return cells_list[0], lons_all, lats_all, lons_center_all, lats_center_all
-

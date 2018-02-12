@@ -1,12 +1,13 @@
 import numpy as np
 from basic_euclidean import eucl_dist
-from basic_geographical import great_circle_distance
+from basic_spherical import great_circle_distance
 
-#############
-# euclidean #
-#############
 
-def e_dtw(t0,t1):
+######################
+# Euclidean Geometry #
+######################
+
+def e_dtw(t0, t1):
     """
     Usage
     -----
@@ -25,20 +26,21 @@ def e_dtw(t0,t1):
 
     n0 = len(t0)
     n1 = len(t1)
-    C=np.zeros((n0+1,n1+1))
-    C[1:,0]=float('inf')
-    C[0,1:]=float('inf')
-    for i in np.arange(n0)+1:
-        for j in np.arange(n1)+1:
-            C[i,j]=eucl_dist(t0[i-1],t1[j-1]) + min(C[i,j-1],C[i-1,j-1],C[i-1,j])
-    dtw = C[n0,n1]
+    C = np.zeros((n0 + 1, n1 + 1))
+    C[1:, 0] = float('inf')
+    C[0, 1:] = float('inf')
+    for i in np.arange(n0) + 1:
+        for j in np.arange(n1) + 1:
+            C[i, j] = eucl_dist(t0[i - 1], t1[j - 1]) + min(C[i, j - 1], C[i - 1, j - 1], C[i - 1, j])
+    dtw = C[n0, n1]
     return dtw
 
-################
-# geographical #
-################
 
-def g_dtw(t0,t1):
+######################
+# Spherical Geometry #
+######################
+
+def s_dtw(t0, t1):
     """
     Usage
     -----
@@ -56,11 +58,12 @@ def g_dtw(t0,t1):
     """
     n0 = len(t0)
     n1 = len(t1)
-    C=np.zeros((n0+1,n1+1))
-    C[1:,0]=float('inf')
-    C[0,1:]=float('inf')
-    for i in np.arange(n0)+1:
-        for j in np.arange(n1)+1:
-            C[i,j]=great_circle_distance(t0[i-1][0],t0[i-1][1],t1[j-1][0],t1[j-1][1]) + min(C[i,j-1],C[i-1,j-1],C[i-1,j])
-    dtw = C[n0,n1]
+    C = np.zeros((n0 + 1, n1 + 1))
+    C[1:, 0] = float('inf')
+    C[0, 1:] = float('inf')
+    for i in np.arange(n0) + 1:
+        for j in np.arange(n1) + 1:
+            C[i, j] = great_circle_distance(t0[i - 1][0], t0[i - 1][1], t1[j - 1][0], t1[j - 1][1]) + \
+                      min(C[i, j - 1], C[i - 1, j - 1], C[i - 1, j])
+    dtw = C[n0, n1]
     return dtw

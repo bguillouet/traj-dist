@@ -1,11 +1,11 @@
 import numpy as np
 from basic_euclidean import eucl_dist, eucl_dist_traj
-from basic_geographical import great_circle_distance
+from basic_spherical import great_circle_distance
 
 
-#############
-# euclidean #
-#############
+######################
+# Euclidean Geometry #
+######################
 
 def e_erp(t0, t1, g):
     """
@@ -44,11 +44,11 @@ def e_erp(t0, t1, g):
     return erp
 
 
-################
-# geographical #
-################
+######################
+# Spherical Geometry #
+######################
 
-def g_erp(t0, t1, g):
+def s_erp(t0, t1, g):
     """
     Usage
     -----

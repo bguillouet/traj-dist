@@ -38,14 +38,16 @@ def great_circle_distance_traj(lons1, lats1, lons2, lats2, l1, l2):
     """
     Usage
     -----
-    Compute the great circle distance, in meter, between (lon1,lat1) and (lon2,lat2)
+    Compute pairwise great circle distance, in meter, between longitude/latitudes coordinates.
 
     Parameters
     ----------
-    param lat1: float, latitude of the first point
-    param lon1: float, longitude of the first point
-    param lat2: float, latitude of the se*cond point
-    param lon2: float, longitude of the second point
+    param lats1: float, latitudes of the firs trajectories
+    param lons1: float, longitude of the trajectories
+    param lats2: float, latitudes of the se*cond trajectories
+    param lons2: float, longitudess of the second trajectories
+    param l1 : int, length of the first trajectories
+    param l2 : int, length of the second trajectories
 
     Returns
     -------x
@@ -128,11 +130,8 @@ def along_track_distance(crt, d13):
 
     Parameters
     ----------
-    param lat1: float, latitude of the first point
-    param lon1: float, longitude of the first point
-    param lat3: float, latitude of the third point
-    param lon3: float, longitude of the third point
     param crt : float, cross_track_distance
+    param d13 : float, along_track_distance
 
     Returns
     -------
@@ -161,6 +160,10 @@ def point_to_path(lon1, lat1, lon2, lat2, lon3, lat3, d13, d23, d12):
     param lon2: float, longitude of the second point
     param lat3: float, latitude of the third point
     param lon3: float, longitude of the third point
+    param d13 : float, great circle distance between (lon1, lat1) and (lon3, lat3)
+    param d23 : float, great circle distance between (lon2, lat2) and (lon3, lat3)
+    param d12 : float, great circle distance between (lon1, lat1) and (lon2, lat2)
+
 
     Returns
     -------

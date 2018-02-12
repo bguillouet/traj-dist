@@ -27,12 +27,12 @@ def eucl_dist_traj(t1, t2):
     """
     Usage
     -----
-    L2-norm between point x and y
+    Pairwise L2-norm between point of trajectories t1 and t2
 
     Parameters
     ----------
-    param x : numpy_array
-    param y : numpy_array
+    param t1 : len(t1)x2 numpy_array
+    param t2 : len(t1)x2 numpy_array
 
     Returns
     -------
@@ -54,6 +54,9 @@ def point_to_seg(p, s1, s2, dps1, dps2, ds):
     param p : 1x2 numpy_array
     param s1 : 1x2 numpy_array
     param s2 : 1x2 numpy_array
+    dps1 : euclidean distance between p and s1
+    dps2 : euclidean distance between p and s2
+    dps : euclidean distance between s1 and s2
 
     Returns
     -------
@@ -97,7 +100,10 @@ def point_to_trajectory(p, t, mdist_p, t_dist, l_t):
     Parameters
     ----------
     param p: 1x2 numpy_array
-    param t : len(t)x2 numpy_array
+    param t : l_tx2 numpy_array
+    param mdist_p : l_t x 1 numpy array, distances from point p to points of trajectory t
+    param t_dist : l_t x 1 numpy array, distances from consecutives points in trajectory t
+    param l_t: int lenght of t
 
     Returns
     -------

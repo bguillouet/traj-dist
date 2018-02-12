@@ -1,6 +1,6 @@
-# # Computing the Frechet distance between two polygonal curves.
-## International Journal of Computational Geometry & Applications.
-## Vol 5, Nos 1&2 (1995) 75-91
+# Computing the Frechet distance between two polygonal curves.
+# International Journal of Computational Geometry & Applications.
+# Vol 5, Nos 1&2 (1995) 75-91
 
 from basic_euclidean import eucl_dist, point_to_seg, circle_line_intersection, eucl_dist_traj
 
@@ -87,6 +87,9 @@ def LF_BF(P, Q, p, q, eps, mdist, P_dist, Q_dist):
     param p : float, number of points in Trajectory P
     param q : float, number of points in Trajectory Q
     param eps : float, reachability distance
+    mdist : p x q numpy array, pairwise distance between points of trajectories t1 and t2
+    param P_dist:  p x 1 numpy_array,  distances between consecutive points in P
+    param Q_dist:  q x 1 numpy_array,  distances between consecutive points in Q
 
     Returns
     -------
@@ -175,6 +178,9 @@ def decision_problem(P, Q, p, q, eps, mdist, P_dist, Q_dist):
     param p : float, number of points in Trajectory P
     param q : float, number of points in Trajectory Q
     param eps : float, reachability distance
+    mdist : p x q numpy array, pairwise distance between points of trajectories t1 and t2
+    param P_dist:  p x 1 numpy_array,  distances between consecutive points in P
+    param Q_dist:  q x 1 numpy_array,  distances between consecutive points in Q
 
     Returns
     -------
@@ -195,8 +201,11 @@ def compute_critical_values(P, Q, p, q, mdist, P_dist, Q_dist):
     ----------
     param P : px2 numpy_array, Trajectory P
     param Q : qx2 numpy_array, Trajectory Q
-    param p : float, number of points in Trajectory P
-    param q : float, number of points in Trajectory Q
+    param p : int, number of points in Trajectory P
+    param q : int, number of points in Trajectory Q
+    mdist : p x q numpy array, pairwise distance between points of trajectories t1 and t2
+    param P_dist:  p x 1 numpy_array,  distances between consecutive points in P
+    param Q_dist:  q x 1 numpy_array,  distances between consecutive points in Q
 
     Returns
     -------
