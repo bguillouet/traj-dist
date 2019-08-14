@@ -2,7 +2,7 @@
 # International Journal of Computational Geometry & Applications.
 # Vol 5, Nos 1&2 (1995) 75-91
 
-from basic_euclidean import eucl_dist, point_to_seg, circle_line_intersection, eucl_dist_traj
+from .basic_euclidean import eucl_dist, point_to_seg, circle_line_intersection, eucl_dist_traj
 
 
 def free_line(p, eps, s, dps1, dps2, ds):
@@ -245,8 +245,8 @@ def frechet(P, Q):
     q = len(Q)
 
     mdist = eucl_dist_traj(P, Q)
-    P_dist = map(lambda ip: eucl_dist(P[ip], P[ip + 1]), range(p - 1))
-    Q_dist = map(lambda iq: eucl_dist(Q[iq], Q[iq + 1]), range(q - 1))
+    P_dist = [eucl_dist(P[ip], P[ip + 1]) for ip in range(p - 1)]
+    Q_dist = [eucl_dist(Q[iq], Q[iq + 1]) for iq in range(q - 1)]
 
     cc = compute_critical_values(P, Q, p, q, mdist, P_dist, Q_dist)
     eps = cc[0]

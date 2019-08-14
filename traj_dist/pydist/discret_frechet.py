@@ -1,5 +1,5 @@
 import numpy as np
-from basic_euclidean import eucl_dist
+from .basic_euclidean import eucl_dist
 
 
 def discret_frechet(t0, t1):
