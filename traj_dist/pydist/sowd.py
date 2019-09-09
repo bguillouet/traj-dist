@@ -1,5 +1,5 @@
 import numpy as np
-import linecell as linec
+from . import linecell as linec
 
 
 def owd_grid_brut(traj_cell_1, traj_cell_2):
@@ -21,7 +21,7 @@ def owd_grid_brut(traj_cell_1, traj_cell_2):
     D = 0
     n = len(traj_cell_1)
     for p1 in traj_cell_1:
-        d = map(lambda x: np.linalg.norm(p1 - x), traj_cell_2)
+        d = [np.linalg.norm(p1 - x) for x in traj_cell_2]
         D += min(d)
     owd = D / n
     return owd
@@ -75,7 +75,7 @@ def owd_grid(traj_cell_1, traj_cell_2):
     n2 = len(traj_cell_2)
 
     p = traj_cell_1[0]
-    p_t2 = map(lambda x: np.linalg.norm(p - x), traj_cell_2)
+    p_t2 = [np.linalg.norm(p - x) for x in traj_cell_2]
     S_old = find_first_min_points(p_t2, n2)
     D = min(p_t2)
     for i in range(1, n1):
@@ -93,13 +93,13 @@ def owd_grid(traj_cell_1, traj_cell_2):
             else:
                 if j == 0:
                     if n_S_old == 1:
-                        ranges = range(0, n2)
+                        ranges = list(range(0, n2))
                     else:
-                        ranges = range(0, S_old[j + 1])
+                        ranges = list(range(0, S_old[j + 1]))
                 elif j == n_S_old - 1:
-                    ranges = range(S_old[j - 1], n2)
+                    ranges = list(range(S_old[j - 1], n2))
                 else:
-                    ranges = range(S_old[j - 1] + 1, S_old[j + 1])
+                    ranges = list(range(S_old[j - 1] + 1, S_old[j + 1]))
                 for igp in ranges:
                     pgp = traj_cell_2[igp]
                     if (p_prec[1] == p[1] and pgp[0] == p[0]) or (p_prec[0] == p[0] and pgp[1] == p[1]) or igp == ig:

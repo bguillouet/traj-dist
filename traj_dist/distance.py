@@ -1,14 +1,14 @@
-from pydist.linecell import trajectory_set_grid
+from .pydist.linecell import trajectory_set_grid
 
-from cydist.sspd import c_e_sspd, c_g_sspd
-from cydist.dtw import c_e_dtw, c_g_dtw
-from cydist.erp import c_e_erp, c_g_erp
-from cydist.edr import c_e_edr, c_g_edr
-from cydist.lcss import c_e_lcss, c_g_lcss
-from cydist.hausdorff import c_e_hausdorff, c_g_hausdorff
-from cydist.discret_frechet import c_discret_frechet
-from cydist.frechet import c_frechet
-from cydist.sowd import c_sowd_grid
+from .cydist.sspd import c_e_sspd, c_g_sspd
+from .cydist.dtw import c_e_dtw, c_g_dtw
+from .cydist.erp import c_e_erp, c_g_erp
+from .cydist.edr import c_e_edr, c_g_edr
+from .cydist.lcss import c_e_lcss, c_g_lcss
+from .cydist.hausdorff import c_e_hausdorff, c_g_hausdorff
+from .cydist.discret_frechet import c_discret_frechet
+from .cydist.frechet import c_frechet
+from .cydist.sowd import c_sowd_grid
 
 import numpy as np
 
@@ -495,7 +495,7 @@ def pdist(traj_list, metric="sspd", type_d="euclidean", converted=None, precisio
     M : a nT x nT numpy array. Where the i,j entry is the distance between traj_list[i] and traj_list[j]
     """
 
-    list_dim = map(lambda x: x.shape[1] if len(x.shape) > 1 else 1, traj_list)
+    list_dim = [x.shape[1] if len(x.shape) > 1 else 1 for x in traj_list]
     nb_traj = len(traj_list)
     if not (len(set(list_dim)) == 1):
         raise ValueError("All trajectories must have same dimesion !")
@@ -517,7 +517,7 @@ def pdist(traj_list, metric="sspd", type_d="euclidean", converted=None, precisio
             raise ValueError("Euclidean implementation for distance " +
                              metric + " is not disponible if your data is not already converted in cell format")
 
-    print("Computing " + type_d + " distance " + metric + " for %d trajectories" % nb_traj)
+    print(("Computing " + type_d + " distance " + metric + " for %d trajectories" % nb_traj))
     M = np.zeros(sum(range(nb_traj)))
     dist = METRIC_DIC[type_d][metric]
     if metric.startswith("sowd_grid"):
@@ -534,7 +534,7 @@ def pdist(traj_list, metric="sspd", type_d="euclidean", converted=None, precisio
                 precision = 7
             print("Cells conversion start")
             cells_list_, _, _, _, _ = trajectory_set_grid(traj_list, precision)
-            cells_list = map(lambda x: np.array(x)[:, :2], cells_list_)
+            cells_list = [np.array(x)[:, :2] for x in cells_list_]
             print("Cells conversion ok")
         im = 0
         for i in range(nb_traj):
@@ -666,9 +666,9 @@ def cdist(traj_list_1, traj_list_2, metric="sspd", type_d="euclidean", converted
 
     """
 
-    list_dim_1 = map(lambda x: x.shape[1], traj_list_1)
+    list_dim_1 = [x.shape[1] for x in traj_list_1]
     nb_traj_1 = len(traj_list_1)
-    list_dim_2 = map(lambda x: x.shape[1], traj_list_2)
+    list_dim_2 = [x.shape[1] for x in traj_list_2]
     nb_traj_2 = len(traj_list_2)
     if not (len(set(list_dim_1 + list_dim_2)) == 1):
         raise ValueError("All trajectories must have same dimesion !")
@@ -682,7 +682,7 @@ def cdist(traj_list_1, traj_list_2, metric="sspd", type_d="euclidean", converted
     if not (type_d in ["spherical", "euclidean"]):
         raise ValueError("The type_d argument should be 'euclidean' or 'spherical'\ntype_d given is : " + type_d)
 
-    print("Computing " + type_d + " distance " + metric + " for %d and %d trajectories" % (nb_traj_1, nb_traj_2))
+    print(("Computing " + type_d + " distance " + metric + " for %d and %d trajectories" % (nb_traj_1, nb_traj_2)))
     M = np.zeros((nb_traj_1, nb_traj_2))
     dist = METRIC_DIC[type_d][metric]
     if metric.startswith("sowd_grid"):
@@ -699,8 +699,8 @@ def cdist(traj_list_1, traj_list_2, metric="sspd", type_d="euclidean", converted
                               "is False. Default is 7")
                 precision = 7
             cells_list, _, _, _, _ = trajectory_set_grid(traj_list_1 + traj_list_2, precision)
-            cells_list_1 = map(lambda x: np.array(x)[:, :2], cells_list[:nb_traj_1])
-            cells_list_2 = map(lambda x: np.array(x)[:, :2], cells_list[nb_traj_1:])
+            cells_list_1 = [np.array(x)[:, :2] for x in cells_list[:nb_traj_1]]
+            cells_list_2 = [np.array(x)[:, :2] for x in cells_list[nb_traj_1:]]
         for i in range(nb_traj_1):
             cells_list_1_i = cells_list_1[i]
             for j in range(nb_traj_2):

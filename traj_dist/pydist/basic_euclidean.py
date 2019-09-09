@@ -111,7 +111,7 @@ def point_to_trajectory(p, t, mdist_p, t_dist, l_t):
           Point-to-trajectory distance between p and trajectory t
     """
     dpt = min(
-        map(lambda it: point_to_seg(p, t[it], t[it + 1], mdist_p[it], mdist_p[it + 1], t_dist[it]), range(l_t - 1)))
+        [point_to_seg(p, t[it], t[it + 1], mdist_p[it], mdist_p[it + 1], t_dist[it]) for it in range(l_t - 1)])
     return dpt
 
 

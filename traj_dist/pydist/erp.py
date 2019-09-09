@@ -1,6 +1,6 @@
 import numpy as np
-from basic_euclidean import eucl_dist, eucl_dist_traj
-from basic_spherical import great_circle_distance
+from .basic_euclidean import eucl_dist, eucl_dist_traj
+from .basic_spherical import great_circle_distance
 
 
 ######################
@@ -28,8 +28,8 @@ def e_erp(t0, t1, g):
     n1 = len(t1)
     C = np.zeros((n0 + 1, n1 + 1))
 
-    gt0_dist = map(lambda x: abs(eucl_dist(g, x)), t0)
-    gt1_dist = map(lambda x: abs(eucl_dist(g, x)), t1)
+    gt0_dist = [abs(eucl_dist(g, x)) for x in t0]
+    gt1_dist = [abs(eucl_dist(g, x)) for x in t1]
     mdist = eucl_dist_traj(t0, t1)
 
     C[1:, 0] = sum(gt0_dist)
@@ -68,8 +68,8 @@ def s_erp(t0, t1, g):
     n1 = len(t1)
     C = np.zeros((n0 + 1, n1 + 1))
 
-    C[1:, 0] = sum(map(lambda x: abs(great_circle_distance(g[0], g[1], x[0], x[1])), t0))
-    C[0, 1:] = sum(map(lambda y: abs(great_circle_distance(g[0], g[1], y[0], y[1])), t1))
+    C[1:, 0] = sum([abs(great_circle_distance(g[0], g[1], x[0], x[1])) for x in t0])
+    C[0, 1:] = sum([abs(great_circle_distance(g[0], g[1], y[0], y[1])) for y in t1])
     for i in np.arange(n0) + 1:
         for j in np.arange(n1) + 1:
             derp0 = C[i - 1, j] + great_circle_distance(t0[i - 1][0], t0[i - 1][1], g[0], g[1])

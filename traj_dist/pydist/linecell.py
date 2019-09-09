@@ -58,7 +58,7 @@ def linecell_lons_bigger_step(p1, p2, cell_start, lons_all, lats_all, lons_cente
         cell.append([cell[-1][0], cell[-1][1] + 1])
     if reverse:
         cell.reverse()
-    cells_coord = map(lambda x: [lons_center_all[x[0]], lats_center_all[x[1]]], cell)
+    cells_coord = [[lons_center_all[x[0]], lats_center_all[x[1]]] for x in cell]
     return cell, cells_coord
 
 
@@ -117,7 +117,7 @@ def linecell_lats_bigger_step(p1, p2, cell_start, lons_all, lats_all, lons_cente
         cell.append([cell[-1][0] + 1, cell[-1][1]])
     if reverse:
         cell.reverse()
-    cells_coord = map(lambda x: [lons_center_all[x[0]], lats_center_all[x[1]]], cell)
+    cells_coord = [[lons_center_all[x[0]], lats_center_all[x[1]]] for x in cell]
     return cell, cells_coord
 
 
@@ -132,7 +132,7 @@ def get_extremum(traj):
 
 
 def trajectory_set_grid(traj_set, precision, time=False):
-    extremums = np.array(map(get_extremum, traj_set))
+    extremums = np.array(list(map(get_extremum, traj_set)))
     p_bottom_left = [min(extremums[:, 0]), min(extremums[:, 1])]
     p_top_right = [max(extremums[:, 2]), max(extremums[:, 3])]
     p_ble = geoh.encode(p_bottom_left[1], p_bottom_left[0], precision)
@@ -175,7 +175,7 @@ def trajectory_set_grid(traj_set, precision, time=False):
                         cell_time = []
                     else:
                         cell_time = [cell[0] + [True, [cell_start_time]]]
-                cell_time = cell_time + map(lambda x: x + [False, -1], cell[1:-1])
+                cell_time = cell_time + [x + [False, -1] for x in cell[1:-1]]
             else:
                 if not cells:
                     cell_time = [cell[0] + [True]]
@@ -184,7 +184,7 @@ def trajectory_set_grid(traj_set, precision, time=False):
                         cell_time = []
                     else:
                         cell_time = [cell[0] + [True]]
-                cell_time = cell_time + map(lambda x: x + [False], cell[1:-1])
+                cell_time = cell_time + [x + [False] for x in cell[1:-1]]
 
             cells.extend(cell_time)
             cell_start = cell[-1]

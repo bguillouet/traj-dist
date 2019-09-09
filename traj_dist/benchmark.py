@@ -23,7 +23,7 @@ for distance in ["sspd", "frechet", "discret_frechet", "hausdorff", "dtw", "lcss
 t_cells_conversion_dic = collections.defaultdict(int)
 for precision in [5, 6, 7]:
     cells_list_, _, _, _, _ = trajectory_set_grid(traj_list, precision=precision)
-    cells_list = map(lambda x: np.array(x)[:, :2], cells_list_)
+    cells_list = [np.array(x)[:, :2] for x in cells_list_]
 
     t_cells_conversion = timeit.timeit(lambda: trajectory_set_grid(traj_list, precision=7), number=1)
     t_cells_conversion_dic[precision] = t_cells_conversion
