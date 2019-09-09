@@ -1,4 +1,4 @@
-import Geohash.geohash as geoh
+import geohash2 as geoh
 import shapely.geometry as geos
 import numpy as np
 
