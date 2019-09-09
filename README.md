@@ -1,5 +1,5 @@
-# trajectory_distance
-=====================
+# trajectory_distance for python3
+=================================
 
 **trajectory_distance** is a Python module for computing distances between 2D-trajectory objects.
 It is implemented in Cython.
@@ -28,7 +28,7 @@ It is implemented in Cython.
 
 ## Dependencies
 
-**trajectory_distance** is tested to work under Python 2.7 and the following dependencies :
+**trajectory_distance** is tested to work under Python 3.6+ and the following dependencies :
  
 * NumPy >= 1.14.0
 * Cython >= 0.27.3
