@@ -30,7 +30,7 @@ for filename in sources]
 
 setup(
     name="trajectory_distance_py3",
-    version="1.0.1-rc2",
+    version="1.0.1",
     author="Brendan Guillouet",
     author_email="brendan.guillouet@gmail.com",
     cmdclass={'build_ext': build_ext},
