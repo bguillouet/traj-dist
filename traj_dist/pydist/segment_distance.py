@@ -1,4 +1,4 @@
-from basic_euclidean import eucl_dist
+from .basic_euclidean import eucl_dist
 import math
 import numpy as np
 

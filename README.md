@@ -28,14 +28,14 @@ It is implemented in Cython.
 
 ## Dependencies
 
-**trajectory_distance** is tested to work under Python 2.7 and the following dependencies :
+**trajectory_distance** is tested to work under Python 3.6 and the following dependencies:
  
-* NumPy >= 1.14.0
-* Cython >= 0.27.3
-* shapely >= 1.6.4
-* Geohash ==1.0
-* pandas >= 0.20.3
-* scipy >=0.19.1
+* NumPy >= 1.16.2
+* Cython >= 0.29.6
+* shapely >= 1.6.4.post2
+* geohash2 == 1.1
+* pandas >= 0.24.2
+* scipy >= 0.20.3
 * A working C/C++ compiler.
 
 ## Install

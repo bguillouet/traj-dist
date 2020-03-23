@@ -24,7 +24,7 @@ setup(
     cmdclass={'build_ext': build_ext},
     ext_modules=ext_modules,
     include_dirs=[numpy.get_include()],
-    install_requires=["numpy>=1.14.0", "Cython>=0.27.3", "Shapely>=1.6.4", "Geohash==1.0", 'pandas>=0.20.3',
+    install_requires=["numpy>=1.14.0", "Cython>=0.27.3", "Shapely>=1.6.4", "geohash2==1.1", 'pandas>=0.20.3',
                       'scipy>=0.19.1'],
     description="Distance to compare 2D-trajectories in Cython",
     packages=["traj_dist", "traj_dist.cydist", "traj_dist.pydist"],

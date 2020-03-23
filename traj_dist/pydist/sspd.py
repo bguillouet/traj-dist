@@ -1,6 +1,6 @@
 import numpy as np
-from basic_euclidean import eucl_dist, eucl_dist_traj, point_to_trajectory
-from basic_spherical import point_to_path, great_circle_distance, great_circle_distance_traj
+from .basic_euclidean import eucl_dist, eucl_dist_traj, point_to_trajectory
+from .basic_spherical import point_to_path, great_circle_distance, great_circle_distance_traj
 
 
 ######################
@@ -30,7 +30,7 @@ def e_spd(t1, t2, mdist, l_t1, l_t2, t2_dist):
            spd-distance of trajectory t2 from trajectory t1
     """
 
-    spd = sum(map(lambda i1: point_to_trajectory(t1[i1], t2, mdist[i1], t2_dist, l_t2), range(l_t1))) / l_t1
+    spd = sum([point_to_trajectory(t1[i1], t2, mdist[i1], t2_dist, l_t2) for i1 in range(l_t1)]) / l_t1
     return spd
 
 
@@ -54,8 +54,8 @@ def e_sspd(t1, t2):
     mdist = eucl_dist_traj(t1, t2)
     l_t1 = len(t1)
     l_t2 = len(t2)
-    t1_dist = map(lambda it1: eucl_dist(t1[it1], t1[it1 + 1]), range(l_t1 - 1))
-    t2_dist = map(lambda it2: eucl_dist(t2[it2], t2[it2 + 1]), range(l_t2 - 1))
+    t1_dist = [eucl_dist(t1[it1], t1[it1 + 1]) for it1 in range(l_t1 - 1)]
+    t2_dist = [eucl_dist(t2[it2], t2[it2 + 1]) for it2 in range(l_t2 - 1)]
 
     sspd = (e_spd(t1, t2, mdist, l_t1, l_t2, t2_dist) + e_spd(t2, t1, mdist.T, l_t2, l_t1, t1_dist)) / 2
     return sspd
@@ -126,10 +126,8 @@ def s_sspd(t0, t1):
 
     mdist = great_circle_distance_traj(lons0, lats0, lons1, lats1, n0, n1)
 
-    t0_dist = map(lambda it0: great_circle_distance(lons0[it0], lats0[it0], lons0[it0 + 1], lats0[it0 + 1]),
-                  range(n0 - 1))
-    t1_dist = map(lambda it1: great_circle_distance(lons1[it1], lats1[it1], lons1[it1 + 1], lats1[it1 + 1]),
-                  range(n1 - 1))
+    t0_dist = [great_circle_distance(lons0[it0], lats0[it0], lons0[it0 + 1], lats0[it0 + 1]) for it0 in range(n0 - 1)]
+    t1_dist = [great_circle_distance(lons1[it1], lats1[it1], lons1[it1 + 1], lats1[it1 + 1]) for it1 in range(n1 - 1)]
 
     dist = s_spd(lons0, lats0, lons1, lats1, n0, n1, mdist, t0_dist) + s_spd(lons1, lats1, lons0, lats0, n1, n0,
                                                                              mdist.T, t1_dist)
