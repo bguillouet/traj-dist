@@ -17,7 +17,7 @@ ext_modules = [Extension("traj_dist.cydist.basic_geographical", ["traj_dist/cydi
                Extension("traj_dist.cydist.edr", ["traj_dist/cydist/edr.pyx"])]
 
 setup(
-    name="trajectory_distance",
+    name="traj_dist",
     version="1.0",
     license="MIT",
     author="Brendan Guillouet",
