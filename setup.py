@@ -19,6 +19,7 @@ ext_modules = [Extension("traj_dist.cydist.basic_geographical", ["traj_dist/cydi
 setup(
     name="trajectory_distance",
     version="1.0",
+    license="MIT",
     author="Brendan Guillouet",
     author_email="brendan.guillouet@gmail.com",
     cmdclass={'build_ext': build_ext},
@@ -26,6 +27,10 @@ setup(
     include_dirs=[numpy.get_include()],
     install_requires=["numpy>=1.14.0", "Cython>=0.27.3", "Shapely>=1.6.4", "geohash2==1.1", 'pandas>=0.20.3',
                       'scipy>=0.19.1'],
-    description="Distance to compare 2D-trajectories in Cython",
+    description="Distance to compare 2D-trajectories in Python/Cython",
+    download_url = 'https://github.com/user/reponame/archive/v_01.tar.gz',    # I explain this later on
+    keywords = ['trajectory',"distance","haversine"],
     packages=["traj_dist", "traj_dist.cydist", "traj_dist.pydist"],
+    url = 'https://github.com/bguillouet/traj-dist',
+    download_urt = 'https://github.com/bguillouet/traj-dist/archive/1.0.tar.gz'
 )
