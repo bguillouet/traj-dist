@@ -5,6 +5,24 @@ rad = math.pi / 180.0
 R = 6378137.0
 
 
+def spherical2Cart(lon, lat):
+    clat=(90-lat)*rad
+    lon=lon*rad
+    x=math.cos(lon)*math.sin(clat)
+    y=math.sin(lon)*math.sin(clat)
+    z=math.cos(clat)
+
+    return [x,y,z]
+
+def cart2Spherical(x,y,z):
+    r=math.sqrt(x**2+y**2+z**2)
+    clat=math.acos(z/r)/math.pi*180
+    lat=90.-clat
+    lon=math.atan2(y,x)/math.pi*180
+    lon=(lon+360)%360
+
+    return [lon, lat]
+
 def great_circle_distance(lon1, lat1, lon2, lat2):
     """
     Usage
@@ -89,6 +107,50 @@ def initial_bearing(lon1, lat1, lon2, lat2):
 
     return ibrng
 
+def cross_track_point(lon1, lat1, lon2, lat2, lon3, lat3):
+    '''Get the closest point on great circle path to the 3rd point
+
+    <lat1>, <lon1>: scalar float or nd-array, latitudes and longitudes in
+                    degree, start point of the great circle.
+    <lat2>, <lon2>: scalar float or nd-array, latitudes and longitudes in
+                    degree, end point of the great circle.
+    <lat3>, <lon3>: scalar float or nd-array, latitudes and longitudes in
+                    degree, a point away from the great circle.
+
+    Return <latp>, <lonp>: latitude and longitude of point P on the great
+                           circle that connects P1, P2, and is closest
+                           to point P3.
+    '''
+
+    x1,y1,z1=spherical2Cart(lon1,lat1)
+    x2,y2,z2=spherical2Cart(lon2,lat2)
+    x3,y3,z3=spherical2Cart(lon3,lat3)
+
+    D,E,F=np.cross([x1,y1,z1],[x2,y2,z2])
+
+    a=E*z3-F*y3
+    b=F*x3-D*z3
+    c=D*y3-E*x3
+
+    f=c*E-b*F
+    g=a*F-c*D
+    h=b*D-a*E
+
+    tt=math.sqrt(f**2+g**2+h**2)
+    xp=f/tt
+    yp=g/tt
+    zp=h/tt
+
+    lon1, lat1 =cart2Spherical(xp,yp,zp)
+    lon2, lat2 =cart2Spherical(-xp,-yp,-zp)
+    #TODO MIGHT REQUIRE EARTH RADIUS  https://gis.stackexchange.com/questions/209540/projecting-cross-track-distance-on-great-circle
+    d1=great_circle_distance(lon1, lat1, lon3, lat3)
+    d2=great_circle_distance(lon2, lat2, lon3, lat3)
+
+    if d1>d2:
+        return lon2, lat2
+    else:
+        return lon1, lat1
 
 def cross_track_distance(lon1, lat1, lon2, lat2, lon3, lat3, d13):
     """
