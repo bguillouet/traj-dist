@@ -417,7 +417,7 @@ def erp(traj_1, traj_2, type_d="euclidean", g=None):
 # ####################
 
 def pdist(traj_list, metric="sspd", type_d="euclidean", converted=None, precision=None,
-          eps=None, g=None):
+          eps=None, g=None, verbose=False):
     """
     Usage
     -----
@@ -517,7 +517,8 @@ def pdist(traj_list, metric="sspd", type_d="euclidean", converted=None, precisio
             raise ValueError("Euclidean implementation for distance " +
                              metric + " is not disponible if your data is not already converted in cell format")
 
-    print(("Computing " + type_d + " distance " + metric + " for %d trajectories" % nb_traj))
+    if verbose:
+       print(("Computing " + type_d + " distance " + metric + " for %d trajectories" % nb_traj))
     M = np.zeros(sum(range(nb_traj)))
     dist = METRIC_DIC[type_d][metric]
     if metric.startswith("sowd_grid"):
@@ -532,10 +533,12 @@ def pdist(traj_list, metric="sspd", type_d="euclidean", converted=None, precisio
                 warnings.warn("precision parameter should be specified for metric sowd_grid if converted "
                               "is False. Default is 7")
                 precision = 7
-            print("Cells conversion start")
+            if verbose:
+                print("Cells conversion start")
             cells_list_, _, _, _, _ = trajectory_set_grid(traj_list, precision)
             cells_list = [np.array(x)[:, :2] for x in cells_list_]
-            print("Cells conversion ok")
+            if verbose:
+                print("Cells conversion ok")
         im = 0
         for i in range(nb_traj):
             cells_list_i = cells_list[i]
@@ -547,7 +550,8 @@ def pdist(traj_list, metric="sspd", type_d="euclidean", converted=None, precisio
         if g is None:
             g = np.zeros(dim, dtype=float)
             warnings.warn("g parameter should be specified for metric erp. Default is ")
-            print(g)
+            if verbose:
+                print(g)
         else:
             if g.shape[0] != dim:
                 raise ValueError("g and trajectories in list should have same dimension")
@@ -585,8 +589,7 @@ def pdist(traj_list, metric="sspd", type_d="euclidean", converted=None, precisio
 # ########################
 
 def cdist(traj_list_1, traj_list_2, metric="sspd", type_d="euclidean", converted=None,
-          precision=None,
-          eps=None, g=None):
+          precision=None, eps=None, g=None, verbose=False):
     """
     Usage
     -----
@@ -682,7 +685,8 @@ def cdist(traj_list_1, traj_list_2, metric="sspd", type_d="euclidean", converted
     if not (type_d in ["spherical", "euclidean"]):
         raise ValueError("The type_d argument should be 'euclidean' or 'spherical'\ntype_d given is : " + type_d)
 
-    print(("Computing " + type_d + " distance " + metric + " for %d and %d trajectories" % (nb_traj_1, nb_traj_2)))
+    if verbose:
+        print(("Computing " + type_d + " distance " + metric + " for %d and %d trajectories" % (nb_traj_1, nb_traj_2)))
     M = np.zeros((nb_traj_1, nb_traj_2))
     dist = METRIC_DIC[type_d][metric]
     if metric.startswith("sowd_grid"):
@@ -710,7 +714,8 @@ def cdist(traj_list_1, traj_list_2, metric="sspd", type_d="euclidean", converted
         if g is None:
             g = np.zeros(dim, dtype=float)
             warnings.warn("g parameter should be specified for metric erp. Default is ")
-            print(g)
+            if verbose:
+                print(g)
         else:
             if g.shape[0] != dim:
                 raise ValueError("g and trajectories in list should have same dimension")
