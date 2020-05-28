@@ -18,7 +18,7 @@ ext_modules = [Extension("traj_dist.cydist.basic_geographical", ["traj_dist/cydi
 
 setup(
     name="traj_dist",
-    version="1.01",
+    version="1.1",
     license="MIT",
     author="Brendan Guillouet",
     author_email="brendan.guillouet@gmail.com",
@@ -32,5 +32,5 @@ setup(
     keywords = ['trajectory',"distance","haversine"],
     packages=["traj_dist", "traj_dist.cydist", "traj_dist.pydist"],
     url = 'https://github.com/bguillouet/traj-dist',
-    download_urt = 'https://github.com/bguillouet/traj-dist/archive/1.01.tar.gz'
+    download_urt = 'https://github.com/bguillouet/traj-dist/archive/1.1.tar.gz'
 )
