@@ -2,7 +2,12 @@ import numpy as np
 import traj_dist.distance as tdist
 import pickle
 
-traj_list = pickle.load(open("/Users/bguillouet/These/trajectory_distance/data/benchmark_trajectories.pkl", "rb"))[:10]
+#because pickle compatibility problem between python 3.6 and python 2.7,we should use this way to open old pkl file
+#refer https://stackoverflow.com/questions/11305790/pickle-incompatibility-of-numpy-arrays-between-python-2-and-3?newreg=8c4b4c32700e4119a3735ecd1f0bb5ca  
+with open('/Users/bguillouet/These/trajectory_distance/data/benchmark_trajectories.pkl', 'rb') as f:
+    u = pickle._Unpickler(f)
+    u.encoding = 'latin1'
+    traj_list = u.load()[:10]
 traj_A = traj_list[0]
 traj_B = traj_list[1]
 
