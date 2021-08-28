@@ -37,6 +37,10 @@ def c_e_edr(np.ndarray[np.float64_t,ndim=2] t0, np.ndarray[np.float64_t,ndim=2] 
 
     # An (m+1) times (n+1) matrix
     C=np.zeros((n0,n1))
+    for i in range(1,n0):
+        C[i][0] = i
+    for j in range(1,n1):
+        C[0][j] = j
 
     for i from 1 <= i < n0:
         for j from 1 <= j < n1:
@@ -49,7 +53,8 @@ def c_e_edr(np.ndarray[np.float64_t,ndim=2] t0, np.ndarray[np.float64_t,ndim=2] 
             else:
                 subcost = 1
             C[i,j] = fmin(fmin(C[i,j-1]+1, C[i-1,j]+1),C[i-1,j-1]+subcost)
-    edr = float(C[n0-1,n1-1])/fmax(n0-1,n1-1)
+#     edr = float(C[n0-1,n1-1])/fmax(n0-1,n1-1)
+    edr = float(C[n0-1,n1-1])
     return edr
 
 
@@ -80,6 +85,10 @@ def c_g_edr(np.ndarray[np.float64_t,ndim=2] t0, np.ndarray[np.float64_t,ndim=2] 
 
     # An (m+1) times (n+1) matrix
     C=np.zeros((n0,n1))
+    for i in range(1,n0):
+        C[i][0] = i
+    for j in range(1,n1):
+        C[0][j] = j
 
     for i from 1 <= i < n0:
         for j from 1 <= j < n1:
@@ -92,5 +101,6 @@ def c_g_edr(np.ndarray[np.float64_t,ndim=2] t0, np.ndarray[np.float64_t,ndim=2] 
             else:
                 subcost = 1
             C[i,j] = fmin(fmin(C[i,j-1]+1, C[i-1,j]+1),C[i-1,j-1]+subcost)
-    edr = float(C[n0-1,n1-1])/fmax(n0-1,n1-1)
+#     edr = float(C[n0-1,n1-1])/fmax(n0-1,n1-1)
+    edr = float(C[n0-1,n1-1])
     return edr
