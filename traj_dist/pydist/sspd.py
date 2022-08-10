@@ -129,6 +129,6 @@ def s_sspd(t0, t1):
     t0_dist = [great_circle_distance(lons0[it0], lats0[it0], lons0[it0 + 1], lats0[it0 + 1]) for it0 in range(n0 - 1)]
     t1_dist = [great_circle_distance(lons1[it1], lats1[it1], lons1[it1 + 1], lats1[it1 + 1]) for it1 in range(n1 - 1)]
 
-    dist = s_spd(lons0, lats0, lons1, lats1, n0, n1, mdist, t0_dist) + s_spd(lons1, lats1, lons0, lats0, n1, n0,
-                                                                             mdist.T, t1_dist)
+    dist = (s_spd(lons0, lats0, lons1, lats1, n0, n1, mdist, t0_dist) + s_spd(lons1, lats1, lons0, lats0, n1, n0,
+                                                                             mdist.T, t1_dist) )/2
     return dist
