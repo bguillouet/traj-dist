@@ -122,35 +122,34 @@ def cross_track_point(lon1, lat1, lon2, lat2, lon3, lat3):
                            to point P3.
     '''
 
-    x1,y1,z1=spherical2Cart(lon1,lat1)
-    x2,y2,z2=spherical2Cart(lon2,lat2)
-    x3,y3,z3=spherical2Cart(lon3,lat3)
+    # convert to radians
+    lat1, lon1, lat2, lon2, lat3, lon3 = map(np.radians, [lat1, lon1, lat2, lon2, lat3, lon3])
 
-    D,E,F=np.cross([x1,y1,z1],[x2,y2,z2])
+    # compute the great circle distance between P1 and P2
+    d12 = great_circle_distance(lon1, lat1, lon2, lat2)
 
-    a=E*z3-F*y3
-    b=F*x3-D*z3
-    c=D*y3-E*x3
+    # compute the initial bearing from P1 to P2
+    brng12 = initial_bearing(lon1, lat1, lon2, lat2)
 
-    f=c*E-b*F
-    g=a*F-c*D
-    h=b*D-a*E
+    # compute the initial bearing from P1 to P3
+    brng13 = initial_bearing(lon1, lat1, lon3, lat3)
 
-    tt=math.sqrt(f**2+g**2+h**2)
-    xp=f/tt
-    yp=g/tt
-    zp=h/tt
+    # compute the angular distance P3 from the great circle
+    dxt = np.arcsin(np.sin(d12 / R) * np.sin(brng13 - brng12))
 
-    lon1, lat1 =cart2Spherical(xp,yp,zp)
-    lon2, lat2 =cart2Spherical(-xp,-yp,-zp)
-    #TODO MIGHT REQUIRE EARTH RADIUS  https://gis.stackexchange.com/questions/209540/projecting-cross-track-distance-on-great-circle
-    d1=great_circle_distance(lon1, lat1, lon3, lat3)
-    d2=great_circle_distance(lon2, lat2, lon3, lat3)
+    # compute the great circle distance from P1 to Pxt
+    d13 = np.arctan2(np.tan(d12 / R) * np.cos(brng13 - brng12), np.cos(d12 / R)) * R
 
-    if d1>d2:
-        return lon2, lat2
-    else:
-        return lon1, lat1
+    # compute the latitude and longitude of Pxt
+    latp = np.arcsin(np.sin(lat1) * np.cos(d13 / R) + np.cos(lat1) * np.sin(d13 / R) * np.cos(brng12))
+
+    lonp = lon1 + np.arctan2(np.sin(brng12) * np.sin(d13 / R) * np.cos(lat1),
+                                np.cos(d13 / R) - np.sin(lat1) * np.sin(latp))
+
+    # convert back to degrees
+    latp, lonp = map(np.degrees, [latp, lonp])
+
+    return latp, lonp
 
 def cross_track_distance(lon1, lat1, lon2, lat2, lon3, lat3, d13):
     """
