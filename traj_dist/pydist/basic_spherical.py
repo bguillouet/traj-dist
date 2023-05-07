@@ -1,27 +1,31 @@
 import math
 import numpy as np
 
+from traj_dist.constants import earth_radius
+
 rad = math.pi / 180.0
-R = 6378137.0
+R = earth_radius()
 
 
 def spherical2Cart(lon, lat):
-    clat=(90-lat)*rad
-    lon=lon*rad
-    x=math.cos(lon)*math.sin(clat)
-    y=math.sin(lon)*math.sin(clat)
-    z=math.cos(clat)
+    clat = (90 - lat) * rad
+    lon = lon * rad
+    x = math.cos(lon) * math.sin(clat)
+    y = math.sin(lon) * math.sin(clat)
+    z = math.cos(clat)
 
-    return [x,y,z]
+    return [x, y, z]
 
-def cart2Spherical(x,y,z):
-    r=math.sqrt(x**2+y**2+z**2)
-    clat=math.acos(z/r)/math.pi*180
-    lat=90.-clat
-    lon=math.atan2(y,x)/math.pi*180
-    lon=(lon+360)%360
+
+def cart2Spherical(x, y, z):
+    r = math.sqrt(x ** 2 + y ** 2 + z ** 2)
+    clat = math.acos(z / r) / math.pi * 180
+    lat = 90. - clat
+    lon = math.atan2(y, x) / math.pi * 180
+    lon = (lon + 360) % 360
 
     return [lon, lat]
+
 
 def great_circle_distance(lon1, lat1, lon2, lat2):
     """
@@ -47,6 +51,7 @@ def great_circle_distance(lon1, lat1, lon2, lat2):
     a = (math.sin(dlat / 2.0) * math.sin(dlat / 2.0) +
          math.cos(rad * lat1) * math.cos(rad * lat2) *
          math.sin(dlon / 2.0) * math.sin(dlon / 2.0))
+    a = min(a, 1.0)
     c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
     d = R * c
     return d
@@ -63,7 +68,7 @@ def great_circle_distance_traj(lons1, lats1, lons2, lats2, l1, l2):
     param lats1: float, latitudes of the firs trajectories
     param lons1: float, longitude of the trajectories
     param lats2: float, latitudes of the se*cond trajectories
-    param lons2: float, longitudess of the second trajectories
+    param lons2: float, longitudes of the second trajectories
     param l1 : int, length of the first trajectories
     param l2 : int, length of the second trajectories
 
@@ -100,15 +105,15 @@ def initial_bearing(lon1, lat1, lon2, lat2):
 
     """
     dlon = rad * (lon2 - lon1)
-    y = math.sin(dlon) * math.cos(rad * (lat2))
-    x = math.cos(rad * (lat1)) * math.sin(rad * (lat2)) - math.sin(rad * (lat1)) * math.cos(rad * (lat2)) * math.cos(
-        dlon)
+    y = math.sin(dlon) * math.cos(rad * lat2)
+    x = math.cos(rad * lat1) * math.sin(rad * lat2) - math.sin(rad * lat1) * math.cos(rad * lat2) * math.cos(dlon)
     ibrng = math.atan2(y, x)
 
     return ibrng
 
+
 def cross_track_point(lon1, lat1, lon2, lat2, lon3, lat3):
-    '''Get the closest point on great circle path to the 3rd point
+    """Get the closest point on great circle path to the 3rd point
 
     <lat1>, <lon1>: scalar float or nd-array, latitudes and longitudes in
                     degree, start point of the great circle.
@@ -120,37 +125,38 @@ def cross_track_point(lon1, lat1, lon2, lat2, lon3, lat3):
     Return <latp>, <lonp>: latitude and longitude of point P on the great
                            circle that connects P1, P2, and is closest
                            to point P3.
-    '''
+    """
 
-    x1,y1,z1=spherical2Cart(lon1,lat1)
-    x2,y2,z2=spherical2Cart(lon2,lat2)
-    x3,y3,z3=spherical2Cart(lon3,lat3)
+    x1, y1, z1 = spherical2Cart(lon1, lat1)
+    x2, y2, z2 = spherical2Cart(lon2, lat2)
+    x3, y3, z3 = spherical2Cart(lon3, lat3)
 
-    D,E,F=np.cross([x1,y1,z1],[x2,y2,z2])
+    D, E, F = np.cross([x1, y1, z1], [x2, y2, z2])
 
-    a=E*z3-F*y3
-    b=F*x3-D*z3
-    c=D*y3-E*x3
+    a = E * z3 - F * y3
+    b = F * x3 - D * z3
+    c = D * y3 - E * x3
 
-    f=c*E-b*F
-    g=a*F-c*D
-    h=b*D-a*E
+    f = c * E - b * F
+    g = a * F - c * D
+    h = b * D - a * E
 
-    tt=math.sqrt(f**2+g**2+h**2)
-    xp=f/tt
-    yp=g/tt
-    zp=h/tt
+    tt = math.sqrt(f ** 2 + g ** 2 + h ** 2)
+    xp = f / tt
+    yp = g / tt
+    zp = h / tt
 
-    lon1, lat1 =cart2Spherical(xp,yp,zp)
-    lon2, lat2 =cart2Spherical(-xp,-yp,-zp)
-    #TODO MIGHT REQUIRE EARTH RADIUS  https://gis.stackexchange.com/questions/209540/projecting-cross-track-distance-on-great-circle
-    d1=great_circle_distance(lon1, lat1, lon3, lat3)
-    d2=great_circle_distance(lon2, lat2, lon3, lat3)
+    lon1, lat1 = cart2Spherical(xp, yp, zp)
+    lon2, lat2 = cart2Spherical(-xp, -yp, -zp)
+    # TODO MIGHT REQUIRE EARTH RADIUS  https://gis.stackexchange.com/questions/209540/projecting-cross-track-distance-on-great-circle
+    d1 = great_circle_distance(lon1, lat1, lon3, lat3)
+    d2 = great_circle_distance(lon2, lat2, lon3, lat3)
 
-    if d1>d2:
+    if d1 > d2:
         return lon2, lat2
     else:
         return lon1, lat1
+
 
 def cross_track_distance(lon1, lat1, lon2, lat2, lon3, lat3, d13):
     """
@@ -187,7 +193,7 @@ def along_track_distance(crt, d13):
     """
     Usage
     -----
-    The along-track distance from the start point (lon1, lat1) to the closest point on the the path
+    The along-track distance from the start point (lon1, lat1) to the closest point on the path
     to the third point (lon3, lat3).
 
     Parameters
@@ -200,8 +206,10 @@ def along_track_distance(crt, d13):
     alt: float
          The along-track distance
     """
-
-    alt = math.acos(math.cos(d13 / R) / math.cos(crt / R)) * R
+    res = math.cos(d13 / R) / math.cos(crt / R)
+    res = min(1., res)
+    res = max(-1., res)
+    alt = math.acos(res) * R
     return alt
 
 
@@ -242,3 +250,35 @@ def point_to_path(lon1, lat1, lon2, lat2, lon3, lat3, d13, d23, d12):
     else:
         ptp = np.abs(crt)
     return ptp
+
+
+def point_to_trajectory_path(pt, t, l_t, dist_pt_t, t_dist):
+    """
+    Usage
+    -----
+    The point-to-trajectory-path distance between point (pt) and trajectory (t) is
+    the minimum point-to-path (see above) distance between point (pt) and any of the paths
+    delimited by 2 consequent points on the trajectory (t)
+
+    Parameters
+    ----------
+    pt - (lon, lat)
+    t - l_t x 2 numpy_array
+    l_t - int, length of t
+    dist_pt_t - l_t x 1 numpy_array, distances between pt and trajectory (t) points
+    t_dist - l_t x 1 numpy_array, distances between consecutive points in t
+
+    Returns
+    -------
+    the minimum point-to-path distance between point (pt) and any of the trajectory (t) segments
+    """
+    distances = []
+    lat3, lon3 = pt[0], pt[1]
+    for i in range(l_t - 1):
+        d13 = dist_pt_t[i]
+        d23 = dist_pt_t[i + 1]
+        d12 = t_dist[i]
+        dist = point_to_path(t[i][1], t[i][0], t[i + 1][1], t[i + 1][0], lon3, lat3, d13, d23, d12)
+        distances.append(dist)
+    return min(distances)
+

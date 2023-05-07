@@ -1,6 +1,8 @@
+import math
+
 import numpy as np
 from .basic_euclidean import eucl_dist, eucl_dist_traj, point_to_trajectory
-from .basic_spherical import point_to_path, great_circle_distance, great_circle_distance_traj
+from .basic_spherical import point_to_path, great_circle_distance, great_circle_distance_traj, cross_track_point
 
 
 ######################
@@ -65,7 +67,7 @@ def e_sspd(t1, t2):
 # Spherical Geometry #
 ######################
 
-def s_spd(lons0, lats0, lons1, lats1, n0, n1, mdist, t0_dist):
+def s_spd(lons0, lats0, lons1, lats1, n0, n1, mdist=None, t0_dist=None):
     """
     Usage
     -----
@@ -80,6 +82,7 @@ def s_spd(lons0, lats0, lons1, lats1, n0, n1, mdist, t0_dist):
     param lats1 :  n1 x 1 numpy_array, lattitudes of trajectories t1
     param n0: int, length of lons0 and lats0
     param n1: int, length of lons1 and lats1
+    t0_dist: distances among points in t0
     mdist : len(t0) x len(t1) numpy array, pairwise distance between points of trajectories t0 and t1
     param t0_dist:  l_t1 x 1 numpy_array,  distances between consecutive points in t0
 
@@ -88,6 +91,12 @@ def s_spd(lons0, lats0, lons1, lats1, n0, n1, mdist, t0_dist):
     spd : float
            spd-distance of trajectory t2 from trajectory t1
     """
+    if mdist is None:
+        mdist = great_circle_distance_traj(lons0, lats0, lons1, lats1, n0, n1)
+
+    if t0_dist is None:
+        t0_dist = [great_circle_distance(lons0[it0], lats0[it0], lons0[it0 + 1], lats0[it0 + 1]) for it0 in
+                   range(n0 - 1)]
 
     dist = 0
     for j in range(n1):
@@ -104,7 +113,7 @@ def s_sspd(t0, t1):
     """
     Usage
     -----
-    The sspd-distance between trajectories t1 and t2.
+    The sspd-distance between trajectories t0 and t1.
     The sspd-distance is the mean of the spd-distance between of t1 from t2 and the spd-distance of t2 from t1.
 
     Parameters
@@ -129,6 +138,75 @@ def s_sspd(t0, t1):
     t0_dist = [great_circle_distance(lons0[it0], lats0[it0], lons0[it0 + 1], lats0[it0 + 1]) for it0 in range(n0 - 1)]
     t1_dist = [great_circle_distance(lons1[it1], lats1[it1], lons1[it1 + 1], lats1[it1 + 1]) for it1 in range(n1 - 1)]
 
-    dist = s_spd(lons0, lats0, lons1, lats1, n0, n1, mdist, t0_dist) + s_spd(lons1, lats1, lons0, lats0, n1, n0,
-                                                                             mdist.T, t1_dist)
+    spd1 = s_spd(lons0, lats0, lons1, lats1, n0, n1, mdist, t0_dist)
+    spd2 = s_spd(lons1, lats1, lons0, lats0, n1, n0, mdist.T, t1_dist)
+    dist = (spd1 + spd2)  # TODO : / 2
     return dist
+
+
+def s_pt_to_traj_dist(p0, t1):
+    """
+    Usage
+    -----
+    The shortest of point p0 from trajectory t1
+
+    Parameters
+    ----------
+    param p0: [2x1] float ndarray [lon, lat]
+    param t1: len(t1)x2 float ndarray - order [lon, lat]
+
+    Returns
+    -------
+    float
+        shortest distance of point p0 from trajectory t1
+    """
+    dist = s_spd(t1[:, 0], t1[:, 1], np.array([p0[0]]), np.array([p0[1]]), len(t1), 1)
+    return dist
+
+
+def s_closest_pt(p0, t1):
+    """
+    Usage
+    -----
+    Finds a point on trajectory t2 that is closest to p1
+    The closest point is either one of t2 trajectory points or the (shortest) projection of p1 on t2
+
+    Parameters
+    ----------
+    param p1: [2x1] float ndarray [lon, lat]
+    param t2: len(t1)x2 float ndarray - order [lon, lat]
+
+    Returns
+    -------
+    lon: float
+    lat: float
+    idx: float the point index of t2 which is closest to p1
+
+    """
+    lons0, lats0 = t1[:, 0], t1[:, 1]
+    lons1, lats1 = np.array([p0[0]]), np.array([p0[1]])
+    n0 = len(t1)
+    n1 = 1
+
+    mdist = great_circle_distance_traj(lons0, lats0, lons1, lats1, n0, n1)
+    t0_dist = [great_circle_distance(lons0[it0], lats0[it0], lons0[it0 + 1], lats0[it0 + 1]) for it0 in range(n0 - 1)]
+
+    dist_j0 = 9e100
+    j = 0
+
+    distances = []
+    for i in range(n0 - 1):
+        dist_j0 = np.min((dist_j0, point_to_path(lons0[i], lats0[i], lons0[i + 1], lats0[i + 1], lons1[j],
+                                                 lats1[j], mdist[i, j], mdist[i + 1, j], t0_dist[i])))
+        distances.append(dist_j0)
+
+    distances = np.array(distances)
+    min_distance, min_index = np.min(distances), np.argmin(distances)
+    if math.isclose(mdist[min_index, 0], min_distance, abs_tol=1e-1, rel_tol=1e-3):
+        lon, lat = t1[min_index, 0], t1[min_index, 1]
+    else:
+        # project pt on t_closest_segment
+        lon, lat = cross_track_point(t1[min_index, 0], t1[min_index, 1], t1[min_index + 1, 0], t1[min_index + 1, 1],
+                                     p0[0], p0[1])
+    return lon, lat, min_index
+

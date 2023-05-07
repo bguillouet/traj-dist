@@ -18,19 +18,19 @@ ext_modules = [Extension("traj_dist.cydist.basic_geographical", ["traj_dist/cydi
 
 setup(
     name="traj_dist",
-    version="1.1",
+    version="1.2",
     license="MIT",
     author="Brendan Guillouet",
     author_email="brendan.guillouet@gmail.com",
     cmdclass={'build_ext': build_ext},
     ext_modules=ext_modules,
     include_dirs=[numpy.get_include()],
-    install_requires=["numpy>=1.14.0", "Cython>=0.27.3", "Shapely>=1.6.4", "geohash2==1.1", 'pandas>=0.20.3',
-                      'scipy>=0.19.1'],
+    install_requires=["numpy>=1.23.5", "Cython>=0.27.3", "Shapely>=1.8.5.post1", "geohash2==1.1", "pandas>=1.5.1",
+                      "scipy>=1.9.3", "scikit-learn>=1.1.3"],
     description="Distance to compare 2D-trajectories in Python/Cython",
-    download_url = 'https://github.com/user/reponame/archive/v_01.tar.gz',    # I explain this later on
-    keywords = ['trajectory',"distance","haversine"],
-    packages=["traj_dist", "traj_dist.cydist", "traj_dist.pydist"],
-    url = 'https://github.com/bguillouet/traj-dist',
-    download_urt = 'https://github.com/bguillouet/traj-dist/archive/1.1.tar.gz'
+    download_url='https://github.com/user/reponame/archive/v_01.tar.gz',    # I explain this later on
+    keywords=['trajectory', "distance", "haversine"],
+    packages=["traj_dist", "traj_dist.pydist"],
+    url='https://github.com/bguillouet/traj-dist',
+    download_urt='https://github.com/bguillouet/traj-dist/archive/1.1.tar.gz'
 )
