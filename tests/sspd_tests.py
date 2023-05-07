@@ -14,6 +14,7 @@ from traj_dist.pydist.sspd_spherical_vectorized import s_sspd_vectorized, s_pt_t
     s_closest_pt_vectorized, s_spd_vectorized_distances, s_pt_to_traj_dist_threshold_vectorized
 from traj_dist.trajectory_utils import remove_duplicate_adjacent_pts
 
+# results recorded before any code changes were applied (via create_test_data)
 results_file_name = f'../data/benchmark_spherical_sspd_results.csv'
 trajectories_file_name = f'../data/benchmark_trajectories.pkl'
 columns = ['i', 'j', 'c_dist', 'p_dist']
@@ -33,6 +34,7 @@ class SphericalSSPDTests(unittest.TestCase):
         cls.max_diff = max(abs(cls.df_expected_results['c_dist'] - cls.df_expected_results['p_dist']))
 
     def test_init(self):
+        """ Test that the sspd code changes haven't affected the calculations' results """
         print(self.max_diff)
         for _, row in self.df_expected_results.iterrows():
             i = int(row["i"])
@@ -42,6 +44,7 @@ class SphericalSSPDTests(unittest.TestCase):
             self.assertAlmostEqual(p_dist, expected_res)
 
     def test_sspd_vectorized(self):
+        """ Test the correctness of sspd vectorized implementation"""
         for _, row in self.df_expected_results.iterrows():
             i = int(row["i"])
             j = int(row["j"])
@@ -52,6 +55,7 @@ class SphericalSSPDTests(unittest.TestCase):
             self.assertAlmostEqual(p_dist_vectorized, expected_res)
 
     def test_spd_vectorized_distances(self):
+        """ Test the correctness of spd vectorized implementation"""
         for _, row in self.df_expected_results.iterrows():
             i = int(row["i"])
             j = int(row["j"])
@@ -73,6 +77,7 @@ class SphericalSSPDTests(unittest.TestCase):
             self.assertAlmostEqual(p_dist_vectorized, expected_dist)
 
     def test_s_pt_to_traj_dist_vectorized(self):
+        """ Test s_pt_to_traj_dist vectorized and non-vectorized calculations are (almost) equal """
         for _, row in self.df_expected_results.iterrows():
             i = int(row["i"])
             j = int(row["j"])
@@ -147,8 +152,6 @@ def create_test_data():
     file = open(trajectories_file_name, 'rb')
     traj_list = pickle.load(file, encoding="bytes")
     traj_list = traj_list[:nb_traj]
-    # create pairwise distance tests
-    # nb_traj_pairs = sum(range(nb_traj))
     results = []
     for i in range(nb_traj):
         traj_list_i = traj_list[i]
