@@ -6,7 +6,9 @@ import collections
 import pandas as pd
 import numpy as np
 
-traj_list = pickle.load(open("/Users/bguillouet/These/trajectory_distance/data/benchmark_trajectories.pkl", "rb"))[:100]
+file_name = f'../data/benchmark_trajectories.pkl'
+file = open(file_name, 'rb')
+traj_list = pickle.load(file, encoding="bytes")[:100]
 
 time_dict = collections.defaultdict(dict)
 
