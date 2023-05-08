@@ -1,14 +1,24 @@
 from .pydist.linecell import trajectory_set_grid
 
 from .cydist.sspd import c_e_sspd, c_g_sspd
+from .pydist.sspd import e_sspd, s_sspd
+from .pydist.sspd_spherical_vectorized import s_sspd_vectorized
 from .cydist.dtw import c_e_dtw, c_g_dtw
+from .pydist.dtw import e_dtw, s_dtw
 from .cydist.erp import c_e_erp, c_g_erp
+from .pydist.erp import e_erp, s_erp
 from .cydist.edr import c_e_edr, c_g_edr
+from .pydist.edr import e_edr, s_edr
 from .cydist.lcss import c_e_lcss, c_g_lcss
+from .pydist.lcss import e_lcss, s_lcss
 from .cydist.hausdorff import c_e_hausdorff, c_g_hausdorff
+from .pydist.hausdorff import e_hausdorff, s_hausdorff
 from .cydist.discret_frechet import c_discret_frechet
+from .pydist.discret_frechet import discret_frechet
 from .cydist.frechet import c_frechet
+from .pydist.frechet import frechet
 from .cydist.sowd import c_sowd_grid
+from .pydist.sowd import sowd_grid
 
 import numpy as np
 
@@ -17,29 +27,47 @@ import warnings
 __all__ = ["pdist", "cdist", "sspd", "sowd_grid", "frechet", "discret_frechet", "hausdorff", "dtw", "lcss", "edr",
            "erp"]
 
-METRIC_DIC = {"spherical": {"sspd": c_g_sspd,
-                            "dtw": c_g_dtw,
-                            "lcss": c_g_lcss,
-                            "hausdorff": c_g_hausdorff,
-                            "sowd_grid": c_sowd_grid,
-                            "erp": c_g_erp,
-                            "edr": c_g_edr},
-              "euclidean": {"sspd": c_e_sspd,
-                            "dtw": c_e_dtw,
-                            "lcss": c_e_lcss,
-                            "hausdorff": c_e_hausdorff,
-                            "discret_frechet": c_discret_frechet,
-                            "frechet": c_frechet,
-                            "sowd_grid": c_sowd_grid,
-                            "erp": c_e_erp,
-                            "edr": c_e_edr}}
+METRIC_DIC = {"c_impl": {"spherical": {"sspd": c_g_sspd,
+                                       "dtw": c_g_dtw,
+                                       "lcss": c_g_lcss,
+                                       "hausdorff": c_g_hausdorff,
+                                       "sowd_grid": c_sowd_grid,
+                                       "erp": c_g_erp,
+                                       "edr": c_g_edr},
+                         "euclidean": {"sspd": c_e_sspd,
+                                       "dtw": c_e_dtw,
+                                       "lcss": c_e_lcss,
+                                       "hausdorff": c_e_hausdorff,
+                                       "discret_frechet": c_discret_frechet,
+                                       "frechet": c_frechet,
+                                       "sowd_grid": c_sowd_grid,
+                                       "erp": c_e_erp,
+                                       "edr": c_e_edr}},
+
+              "p_impl": {"spherical": {"sspd": s_sspd,
+                                       "sspd_vectorized": s_sspd_vectorized,
+                                       "dtw": s_dtw,
+                                       "lcss": s_lcss,
+                                       "hausdorff": s_hausdorff,
+                                       "sowd_grid": sowd_grid,
+                                       "erp": s_erp,
+                                       "edr": s_edr},
+                         "euclidean": {"sspd": e_sspd,
+                                       "dtw": e_dtw,
+                                       "lcss": e_lcss,
+                                       "hausdorff": e_hausdorff,
+                                       "discret_frechet": discret_frechet,
+                                       "frechet": frechet,
+                                       "sowd_grid": sowd_grid,
+                                       "erp": e_erp,
+                                       "edr": e_edr}}}
 
 
 # #################
 # Simple Distance #
 # #################
 
-def sspd(traj_1, traj_2, type_d="euclidean"):
+def sspd(traj_1, traj_2, type_d="euclidean", impl="c_impl"):
     """
     Usage
     -----
@@ -69,12 +97,12 @@ def sspd(traj_1, traj_2, type_d="euclidean"):
     if not (type_d in ["spherical", "euclidean"]):
         raise ValueError("The type_d argument should be 'euclidean' or 'spherical'\ntype_d given is : " + type_d)
 
-    dist_func = METRIC_DIC[type_d]["sspd"]
+    dist_func = METRIC_DIC[impl][type_d]["sspd"]
     dist = dist_func(traj_1, traj_2)
     return dist
 
 
-def sowd_grid(traj_1, traj_2, type_d="euclidean", converted=None, precision=None):
+def sowd_grid(traj_1, traj_2, type_d="euclidean", impl="c_impl", converted=None, precision=None):
     """
     Usage
     -----
@@ -131,12 +159,12 @@ def sowd_grid(traj_1, traj_2, type_d="euclidean", converted=None, precision=None
         cells_list_, _, _, _, _ = trajectory_set_grid([traj_1, traj_2], precision)
         cells_list = [np.array(cells_list_[0])[:, :2], np.array(cells_list_[1])[:, :2]]
 
-    dist_func = METRIC_DIC[type_d]["sowd_grid"]
+    dist_func = METRIC_DIC[impl][type_d]["sowd_grid"]
     dist = dist_func(cells_list[0], cells_list[1])
     return dist
 
 
-def frechet(traj_1, traj_2, type_d="euclidean"):
+def frechet(traj_1, traj_2, type_d="euclidean", impl="c_impl"):
     """
     Usage
     -----
@@ -167,12 +195,12 @@ def frechet(traj_1, traj_2, type_d="euclidean"):
     if type_d != "euclidean":
         raise ValueError("The type_d argument should be 'euclidean'\ntype_d given is : " + type_d)
 
-    dist_func = METRIC_DIC[type_d]["frechet"]
+    dist_func = METRIC_DIC[impl][type_d]["frechet"]
     dist = dist_func(traj_1, traj_2)
     return dist
 
 
-def discret_frechet(traj_1, traj_2, type_d="euclidean"):
+def discret_frechet(traj_1, traj_2, type_d="euclidean", impl="c_impl"):
     """
     Usage
     -----
@@ -202,12 +230,12 @@ def discret_frechet(traj_1, traj_2, type_d="euclidean"):
     if type_d != "euclidean":
         raise ValueError("The type_d argument should be 'euclidean'\ntype_d given is : " + type_d)
 
-    dist_func = METRIC_DIC[type_d]["discret_frechet"]
+    dist_func = METRIC_DIC[impl][type_d]["discret_frechet"]
     dist = dist_func(traj_1, traj_2)
     return dist
 
 
-def hausdorff(traj_1, traj_2, type_d="euclidean"):
+def hausdorff(traj_1, traj_2, type_d="euclidean", impl="c_impl"):
     """
     Usage
     -----
@@ -244,12 +272,12 @@ def hausdorff(traj_1, traj_2, type_d="euclidean"):
     if not (type_d in ["spherical", "euclidean"]):
         raise ValueError("The type_d argument should be 'euclidean' or 'spherical'\ntype_d given is : " + type_d)
 
-    dist_func = METRIC_DIC[type_d]["hausdorff"]
+    dist_func = METRIC_DIC[impl][type_d]["hausdorff"]
     dist = dist_func(traj_1, traj_2)
     return dist
 
 
-def dtw(traj_1, traj_2, type_d="euclidean"):
+def dtw(traj_1, traj_2, type_d="euclidean", impl="c_impl"):
     """
     Usage
     -----
@@ -282,12 +310,12 @@ def dtw(traj_1, traj_2, type_d="euclidean"):
     if not (type_d in ["spherical", "euclidean"]):
         raise ValueError("The type_d argument should be 'euclidean' or 'spherical'\ntype_d given is : " + type_d)
 
-    dist_func = METRIC_DIC[type_d]["dtw"]
+    dist_func = METRIC_DIC[impl][type_d]["dtw"]
     dist = dist_func(traj_1, traj_2)
     return dist
 
 
-def lcss(traj_1, traj_2, type_d="euclidean", eps=200):
+def lcss(traj_1, traj_2, type_d="euclidean", impl="c_impl", eps=200):
     """
     Usage
     -----
@@ -320,12 +348,12 @@ def lcss(traj_1, traj_2, type_d="euclidean", eps=200):
     if not (type_d in ["spherical", "euclidean"]):
         raise ValueError("The type_d argument should be 'euclidean' or 'spherical'\ntype_d given is : " + type_d)
 
-    dist_func = METRIC_DIC[type_d]["lcss"]
+    dist_func = METRIC_DIC[impl][type_d]["lcss"]
     dist = dist_func(traj_1, traj_2, eps)
     return dist
 
 
-def edr(traj_1, traj_2, type_d="euclidean", eps=200):
+def edr(traj_1, traj_2, type_d="euclidean", impl="c_impl", eps=200):
     """
     Usage
     -----
@@ -359,12 +387,12 @@ def edr(traj_1, traj_2, type_d="euclidean", eps=200):
     if not (type_d in ["spherical", "euclidean"]):
         raise ValueError("The type_d argument should be 'euclidean' or 'spherical'\ntype_d given is : " + type_d)
 
-    dist_func = METRIC_DIC[type_d]["edr"]
+    dist_func = METRIC_DIC[impl][type_d]["edr"]
     dist = dist_func(traj_1, traj_2, eps)
     return dist
 
 
-def erp(traj_1, traj_2, type_d="euclidean", g=None):
+def erp(traj_1, traj_2, type_d="euclidean", impl="c_impl", g=None):
     """
     Usage
     -----
@@ -407,7 +435,7 @@ def erp(traj_1, traj_2, type_d="euclidean", g=None):
     if not (type_d in ["spherical", "euclidean"]):
         raise ValueError("The type_d argument should be 'euclidean' or 'spherical'\ntype_d given is : " + type_d)
 
-    dist_func = METRIC_DIC[type_d]["erp"]
+    dist_func = METRIC_DIC[impl][type_d]["erp"]
     dist = dist_func(traj_1, traj_2, g)
     return dist
 
@@ -416,7 +444,7 @@ def erp(traj_1, traj_2, type_d="euclidean", g=None):
 # Pairwise Distance #
 # ####################
 
-def pdist(traj_list, metric="sspd", type_d="euclidean", converted=None, precision=None,
+def pdist(traj_list, metric="sspd", type_d="euclidean", impl="c_impl", converted=None, precision=None,
           eps=None, g=None, verbose=False):
     """
     Usage
@@ -501,7 +529,7 @@ def pdist(traj_list, metric="sspd", type_d="euclidean", converted=None, precisio
         raise ValueError("All trajectories must have same dimesion !")
     dim = list_dim[0]
 
-    if not (metric in ["sspd", "dtw", "lcss", "hausdorff", "frechet", "discret_frechet", "sowd_grid",
+    if not (metric in ["sspd", "sspd_vectorized", "dtw", "lcss", "hausdorff", "frechet", "discret_frechet", "sowd_grid",
                        "erp", "edr"]):
         raise ValueError("The metric argument should be 'sspd', 'dtw', 'lcss','erp','edr' 'hausdorff', 'frechet',"
                          "'discret_frechet' or 'sowd_grid' \nmetric given is : " + metric)
@@ -518,9 +546,9 @@ def pdist(traj_list, metric="sspd", type_d="euclidean", converted=None, precisio
                              metric + " is not disponible if your data is not already converted in cell format")
 
     if verbose:
-       print(("Computing " + type_d + " distance " + metric + " for %d trajectories" % nb_traj))
+        print(("Computing " + type_d + " distance " + metric + " for %d trajectories" % nb_traj))
     M = np.zeros(sum(range(nb_traj)))
-    dist = METRIC_DIC[type_d][metric]
+    dist = METRIC_DIC[impl][type_d][metric]
     if metric.startswith("sowd_grid"):
         if converted is None:
             warnings.warn("converted parameter should be specified for metric sowd_grid. Default "
@@ -588,7 +616,7 @@ def pdist(traj_list, metric="sspd", type_d="euclidean", converted=None, precisio
 #  Distance between list #
 # ########################
 
-def cdist(traj_list_1, traj_list_2, metric="sspd", type_d="euclidean", converted=None,
+def cdist(traj_list_1, traj_list_2, metric="sspd", type_d="euclidean", impl="c_impl", converted=None,
           precision=None, eps=None, g=None, verbose=False):
     """
     Usage
@@ -688,7 +716,7 @@ def cdist(traj_list_1, traj_list_2, metric="sspd", type_d="euclidean", converted
     if verbose:
         print(("Computing " + type_d + " distance " + metric + " for %d and %d trajectories" % (nb_traj_1, nb_traj_2)))
     M = np.zeros((nb_traj_1, nb_traj_2))
-    dist = METRIC_DIC[type_d][metric]
+    dist = METRIC_DIC[impl][type_d][metric]
     if metric.startswith("sowd_grid"):
         if converted is None:
             warnings.warn("converted parameter should be specified for metric sowd_grid. Default "

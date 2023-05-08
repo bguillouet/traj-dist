@@ -250,8 +250,8 @@ def frechet(P, Q):
 
     cc = compute_critical_values(P, Q, p, q, mdist, P_dist, Q_dist)
     eps = cc[0]
-    while (len(cc) != 1):
-        m_i = len(cc) / 2 - 1
+    while len(cc) != 1:
+        m_i = int(len(cc) / 2 - 1)
         eps = cc[m_i]
         rep = decision_problem(P, Q, p, q, eps, mdist, P_dist, Q_dist)
         if rep:
