@@ -27,23 +27,29 @@ def eucl_dist_traj(t1, t2):
     """
     Usage
     -----
-    Pairwise L2-norm between point of trajectories t1 and t2
+    High-dimensional European distance between point of trajectories t1 and t2
 
     Parameters
     ----------
-    param t1 : len(t1)x2 numpy_array
-    param t2 : len(t1)x2 numpy_array
+    param t1 : len(t1)xh numpy_array
+    param t2 : len(t1)xh numpy_array
 
     Returns
     -------
     dist : float
-           L2-norm between x and y
+           High-dimensional European distance between point of trajectories t1 and t2
     """
-    mdist = cdist(t1, t2, 'euclidean')
-    return mdist
+    dist = 0
+    try:
+        for i in range(len(t1)):
+            dist += (t1[i] - t2[i]) ** 2
+        dist = math.sqrt(dist)
+    except:
+        ValueError("Trajectories must have the same dimension")
+    return dist
 
 
-def point_to_seg(p, s1, s2, dps1, dps2, ds):
+def point_to_seg(p, s1, s2):
     """
     Usage
     -----
@@ -51,46 +57,27 @@ def point_to_seg(p, s1, s2, dps1, dps2, ds):
 
     Parameters
     ----------
-    param p : 1x2 numpy_array
-    param s1 : 1x2 numpy_array
-    param s2 : 1x2 numpy_array
-    dps1 : euclidean distance between p and s1
-    dps2 : euclidean distance between p and s2
-    dps : euclidean distance between s1 and s2
+    param p : 1xh numpy_array
+    param s1 : 1xh numpy_array
+    param s2 : 1xh numpy_array
 
     Returns
     -------
     dpl: float
          Point to segment distance between p and s
     """
-    px = p[0]
-    py = p[1]
-    p1x = s1[0]
-    p1y = s1[1]
-    p2x = s2[0]
-    p2y = s2[1]
-    if p1x == p2x and p1y == p2y:
-        dpl = dps1
-    else:
-        segl = ds
-        x_diff = p2x - p1x
-        y_diff = p2y - p1y
-        u1 = (((px - p1x) * x_diff) + ((py - p1y) * y_diff))
-        u = u1 / (segl * segl)
-
-        if (u < 0.00001) or (u > 1):
-            # closest point does not fall within the line segment, take the shorter distance to an endpoint
-            dpl = min(dps1, dps2)
-        else:
-            # Intersecting point is on the line, use the formula
-            ix = p1x + u * x_diff
-            iy = p1y + u * y_diff
-            dpl = eucl_dist(p, np.array([ix, iy]))
-
-    return dpl
+    line_vector = s2 - s1
+    point_vector = p - s1
+    line_length = np.linalg.norm(line_vector)
+    line_unit_vector = line_vector / line_length
+    projection_length = np.dot(point_vector, line_unit_vector)
+    projection_vector = projection_length * line_unit_vector
+    distance_vector = point_vector - projection_vector
+    distance = np.linalg.norm(distance_vector)
+    return distance
 
 
-def point_to_trajectory(p, t, mdist_p, t_dist, l_t):
+def point_to_trajectory(p, t):
     """
     Usage
     -----
@@ -99,20 +86,28 @@ def point_to_trajectory(p, t, mdist_p, t_dist, l_t):
 
     Parameters
     ----------
-    param p: 1x2 numpy_array
-    param t : l_tx2 numpy_array
-    param mdist_p : l_t x 1 numpy array, distances from point p to points of trajectory t
-    param t_dist : l_t x 1 numpy array, distances from consecutives points in trajectory t
-    param l_t: int lenght of t
+    param p: 1xh numpy_array
+    param t : l_txh numpy_array
 
     Returns
     -------
     dpt : float,
           Point-to-trajectory distance between p and trajectory t
     """
-    dpt = min(
-        [point_to_seg(p, t[it], t[it + 1], mdist_p[it], mdist_p[it + 1], t_dist[it]) for it in range(l_t - 1)])
-    return dpt
+    min_distance = float('inf')
+    for i in range(len(t) - 1):
+        segment_start = t[i]
+        segment_end = t[i + 1]
+        segment_vector = segment_end - segment_start
+        point_vector = p - segment_start
+        projection_length = np.dot(point_vector, segment_vector) / np.linalg.norm(segment_vector)
+        if 0 <= projection_length <= np.linalg.norm(segment_vector):
+            projected_point = segment_start + (projection_length * segment_vector / np.linalg.norm(segment_vector))
+            distance = eucl_dist(p, projected_point)
+        else:
+            distance = min(eucl_dist(p, segment_start), eucl_dist(p, segment_end))
+        min_distance = min(min_distance, distance)
+    return min_distance
 
 
 def circle_line_intersection(px, py, s1x, s1y, s2x, s2y, eps):
